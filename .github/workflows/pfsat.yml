@@ -44,7 +44,7 @@ jobs:
         chmod 600 key.pem
     - name: Pull Docker image
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker pull ezeqrb/gcasa:latest'
+        ssh -v -o StrictHostKeyChecking=no -i key.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker pull ezeqrb/gcasa:latest'
     - name: Stop running container
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker stop gcasa || true'
