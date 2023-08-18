@@ -1,0 +1,221 @@
+{% extends '../../sat/private/base-dashboard.html' %}
+
+{% load static %}
+{% block script %}
+    <script src="{% static 'encuesta/index/form.js' %}"></script>
+    <script src="{% static 'encuesta/lib/cookie.min.js' %}"></script>
+{% endblock %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+                <h1 class="page-header-title">
+                    {% if form.title %}
+                    ~ {{form.title}} ~
+                    {% else %}
+                    Crear Encuesta
+                    {% endif %}
+                </h1>
+            </div>
+            <div class="col-12 col-xl-auto mb-3">
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'list_encuestas' %}">
+                    <i class="me-1" data-feather="arrow-left"></i>
+                    Volver a Lista de Encuestas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block contenido %}
+<div class = "container-fluid px-4">
+    <div class="row gx-4">
+        <div class="col-lg-8">
+            <div class="form-topnav">
+                <div class="card mb-4">
+                    <div class="card-header">Título</div>
+                    <div class="card-body">
+                    <input class="form-control nav-text nav-form-title edit-on-click input-form-title" value="{{form.title}}" 
+                    type="text" placeholder="Ingrese el título de la encuesta">
+                    </div>
+                </div>
+                <div class="card card-header-actions mb-4">
+                    <div class="card-header">Descripción</div>
+                    <div class="card-body"><textarea class="form-control form-description edit-on-click textarea-adjust txt-clr" rows="6" 
+                    placeholder="Ingrese la descripción de la encuesta" spellCheck = "false" id="input-form-description">{{form.description}}</textarea></div>
+                </div>
+            </div>
+            <div class="container">
+                <span id="bg-color" style="display: none;">{{form.background_color}}</span>
+                <span id="text-color" style="display: none;">{{form.text_color}}</span>
+                <div class="margin-top-bottom box question-box" id="form-head">
+                    {% if form.collect_email %}
+                    <div class="collect-email txt-clr">
+                        <div class="card card-header-actions mb-4">
+                            <div class="card-header question-title">
+                                Dirección de correo electrónico
+                            </div>
+                            <div class="card-body">
+                                <input type="text" autocomplete="off" aria-label="Valid email address" disabled dir = "auto" class="require-email-edit txtColor form-control"
+                                placeholder = "Ingrese su correo electrónico" />
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% for question in form.questions.all %}
+                <div class="margin-top-bottom box question-box question" data-id="{{question.id}}">
+                    <div class="card card-header-actions mb-4">
+                        <div class="card-body">
+                            <input type="text" data-id="{{question.id}}" class="form-control question-title edit-on-click input-question mb-2" value="{{question.question}}">
+                            <select class="form-control question-type-select input-question-type mb-2" data-id="{{question.id}}" data-origin_type = "{{question.question_type}}">
+                                <option value="short" {% if question.question_type == "short" %}selected{% endif %}>Respuesta Breve</option>
+                                <option value="paragraph" {% if question.question_type == "paragraph" %}selected{% endif %}>Respuesta a Desarrollar</option>
+                                <option value="checkbox" {% if question.question_type == "checkbox" %}selected{% endif %}>Opción Única</option>
+                                <option value="multiple choice" {% if question.question_type == "multiple choice" %}selected{% endif %}>Opción Múltiple</option>
+                            </select>
+                            {% if question.question_type == "multiple choice" %}
+                            <div class="choices" data-id="{{question.id}}">
+                                {% for choice in question.choices.all %}
+                                    <div class="choice">
+                                        <input type="checkbox" id="{{choice.id}}" disabled>
+                                        <label for="{{choice.id}}">
+                                            <input type="text" value="{{choice.choice}}" class="edit-choice form-control mb-1" data-id="{{choice.id}}">
+                                        </label>
+                                        <span class="remove-option" title="Eliminar Opción" data-id="{{choice.id}}">&times;</span>
+                                    </div>
+                                {% endfor %}
+                                <div class="choice">
+                                    <a for = "add-choice" class="add-option" data-question="{{question.id}}" data-type = "{{question.question_type}}">+ Agregar Opción</a>
+                                </div>
+                            </div>
+                            {% elif question.question_type == "checkbox" %}
+                            <div class="choices" data-id="{{question.id}}">
+                                {% for choice in question.choices.all %}
+                                    <div class="choice">
+                                        <input type="radio" id="{{choice.id}}" disabled>
+                                        <label for="{{choice.id}}">
+                                            <input type="text" data-id="{{choice.id}}" class="edit-choice form-control mb-1" value="{{choice.choice}}">
+                                        </label>
+                                        <span class="remove-option" title="Eliminar Opción" data-id="{{choice.id}}">&times;</span>
+                                    </div>
+                                {% endfor %}
+                                <div class="choice">
+                                    <a for = "add-choice" class="add-option" id="add-option" data-question="{{question.id}}" data-type = "{{question.question_type}}">+ Agregar Opción</a>
+                                </div>
+                            </div>
+                            {% elif question.question_type == "short" %}
+                            <div class="answers" data-id="{{question.id}}">
+                                <input type ="text" class="short-answer form-control" disabled placeholder="Ingrese una respuesta breve" />
+                            </div>
+                            {% elif question.question_type == "paragraph" %}
+                            <div class="answers" data-id="{{question.id}}">
+                                <textarea class="long-answer form-control" rows="5" disabled placeholder="Ingrese una respuesta a desarrollar" ></textarea>
+                            </div>
+                            {% endif %}
+                            <div class="choice-option">
+                                <input type="checkbox" class="required-checkbox" id="required-{{question.id}}" data-id="{{question.id}}" {% if question.required %}checked{% endif %}>
+                                <label for="required-{{question.id}}" class="required mt-2">(*) Obligatoria</label>
+                                <div class="text-center">
+                                    <button class="question-option-icon delete-question btn btn-dark btn-sm" data-id="{{question.id}}">Eliminar Pregunta</button>
+                                    <button class="question-option-icon repeat-question btn btn-dark btn-sm" data-id="{{question.id}}">Repetir Pregunta</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}    
+            </div>
+            <div class="d-flex justify-content-evenly mb-4">
+                <button class="btn btn-primary-soft text-primary" title="Agregar Pregunta" alt = "Add question icon" id="add-question" style="width:200px;">Agregar Pregunta</button>
+                <a href="{% url 'view_encuesta' form.code %}" type="button" class="btn btn-secondary-soft text-secondary" alt = "Preview icon" style="width:200px;">Prevista</a>
+                <div class="d-grid"><form id="delete-form"><input type="submit" value="Eliminar" class="btn btn-danger-soft text-danger" style="width:200px;"></form></div>
+            </div>
+        </div>
+        <div class="modal" id="setting" style="width:50vw;">
+            <div class="modal-content txt-clr">
+                <form id="setting-form">
+                    <span class="modal-close-btn" id="close-setting">&times;</span>
+                    <h1 class = "modal-title mb-2 text-center fw-bold">Configuración</h1>
+                    <div class="modal-division">
+                        <div class="form-group">
+                            <input type="checkbox" id="collect_email"{% if form.collect_email %} checked {% endif %}>
+                            <label for="collect_email" class="setting-form-label">Solicitar correo electrónico</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" id="is_quiz" {% if form.is_quiz %} checked {% endif %}>
+                            <label for="is_quiz" class="setting-form-label">Agregar puntaje a las preguntas</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" id="authenticated_responder" {% if form.authenticated_responder %} checked {% endif %}>
+                            <label for="authenticated_responder" class="setting-form-label">Inicio de sesión como paciente</label>
+                        </div>
+                    </div>
+                    <div class="modal-division">
+                        <div class="form-group">
+                            <h5 class="modal-subtitle mt-4 mb-2">Mensaje de confirmación</h5>
+                            <textarea rows="1" class="confirmation-msg-input edit-on-click textarea-adjust form-control" spellcheck="false"
+                            id="comfirmation_message">{{form.confirmation_message}}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-division">
+                        <h5 class="modal-subtitle mt-4 mb-2">El paciente puede:</h5>
+                        <div class="form-group">
+                            <input type="checkbox" id="edit_after_submit" {% if form.edit_after_submit %}checked{% endif %}>
+                            <label for="edit_after_submit" class="setting-form-label">Editar Respuestas</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" id="allow_view_score" {% if form.allow_view_score %}checked{% endif %}>
+                            <label for="allow_view_score" class="setting-form-label">Ver puntaje y comentarios</label>
+                        </div>
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn btn-primary btn-save-setting" style="width:100px;">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal" id="send-form" style="width:60vw;">
+            <div class="modal-content">
+                <span class="modal-close-btn" id="close-send-form">&times;</span>
+                <div class="modal-division">
+                    <h4 class="modal-subtitle mb-2 text-center">Link</h4>
+                    <input type="url" class="form-control" value="http://{{request.get_host}}/form/{{form.code}}/viewform" copy-btn id="copy-url">
+                </div>
+                <button class="btn btn-submit btn-secondary btn-sm mt-2" copy-btn>Copiar</button>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card card-header-actions mb-4">
+                <div class="card-header">
+                    Administración
+                    <i class="text-muted" data-feather="info" data-bs-toggle="tooltip" data-bs-placement="left" title="Se pueden modificar algunos parámetros de la encuesta."></i>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid mb-3">
+                        <button class="fw-500 btn btn-primary mt-1" id="open-setting">Configurar Parámetros</button>
+                    </div>
+                    <div class="question-score">
+                        {% if form.is_quiz %}
+                            <a href = "{% url 'score' form.code %}" type="button" id="add-score" class="d-grid mb-3 fw-500 btn btn-primary">Agregar Puntaje</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card card-header-actions">
+                <div class="card-header">
+                    Acciones
+                    <i class="text-muted" data-feather="info" data-bs-toggle="tooltip" data-bs-placement="left" title="Al publicar la encuesta, la misma se enviará a todos sus pacientes."></i>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid mb-3"><a type="button" class="fw-500 btn btn-secondary-soft text-secondary" id="send-form-btn">Obtener Link</a></div>
+                    <div class="d-grid mb-3"><a type="button" class="fw-500 btn btn-success-soft text-success" href="{% url 'publish_encuesta' form.code %}">Publicar</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

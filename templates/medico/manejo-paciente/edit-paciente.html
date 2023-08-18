@@ -1,0 +1,95 @@
+{% extends '../../sat/private/base-dashboard.html' %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+                <h1 class="page-header-title">
+                    <div class="page-header-icon"><i data-feather="user"></i></div>
+                    {{paciente.user.first_name}} {{paciente.user.last_name}}
+                </h1>
+            </div>
+            <div class="col-12 col-xl-auto mb-3">
+                <button class="btn btn-sm btn-light text-primary" type="button" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                    <i class="me-1" data-feather="plus"></i>
+                    Nueva Obra Social
+                </button>
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'list_pacientes' %}">
+                    <i class="me-1" data-feather="arrow-left"></i>
+                    Volver a la Lista de Pacientes
+                </a>
+            </div>                     
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block contenido %}
+<!-- Main page content-->
+<div class="container-xl px-4 mt-4">
+    <div class="row">
+        <div class="col-xl-4">
+            <!-- Profile picture card-->
+            <div class="card mb-4 mb-xl-0 text-center">
+                <div class="card-header">Foto de Perfil</div>
+                <div class="card-body">
+                    <!-- Profile picture image-->
+                    {% if paciente.imagen %}
+                    <img src="{{ paciente.imagen.url }}" alt="Foto de Perfil" width="150" height="150"/>
+                    {% else %}
+                    <div class="small font-italic text-muted mb-4">JPG or PNG menor a 5 MB</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-8">
+            <!-- Account details card-->
+            <div class="card mb-4">
+                <div class="card-header text-center">Información Personal</div>
+                {% for message in messages %}
+                    <div class="alert alert-danger" role="alert">
+                        <p class="text-center">{{message}}</p>
+                    </div>
+                {% endfor %}
+                <div class="card-body">
+                    <form action="{% url 'edit_paciente' paciente.id %}" method="post">
+                        {% csrf_token %}
+                        {% include 'sat/private/form-user.html' %}
+                        <div class="text-center text-lg-start mt-4 pt-2">
+                            <div class="d-flex justify-content-evenly">
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                                <a class="btn btn-dark" href="{% url 'list_pacientes' %}" role="button">Volver</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Create group modal-->
+<div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGroupModalLabel">Crear Obra Social</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'add_obraSocial' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-0">
+                        <label class="mb-1 small text-muted" for="formGroupName">Nombre</label>
+                        <input class="form-control" id="formGroupName" type="text" name="nombreOS" placeholder="Ingrese el nombre" />
+                    </div>
+                </div>
+                <div class="modal-footer dflex justify-content-evenly">
+                    <button class="btn btn-primary-soft text-primary" type="submit">Crear</button>
+                    <button class="btn btn-danger-soft text-danger" type="button" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

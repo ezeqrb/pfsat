@@ -1,0 +1,127 @@
+{% extends '../base-dashboard.html' %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+                <h1 class="page-header-title">
+                    <div class="page-header-icon"><i data-feather="user"></i></div>
+                    Lista de Médicos
+                </h1>
+            </div>
+            <div class="col-12 col-xl-auto mb-3">
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'groups_usuarios' %}">
+                    <i class="me-1" data-feather="users"></i>
+                    Grupos de Usuarios
+                </a>
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'add_medico' %}">
+                    <i class="me-1" data-feather="user-plus"></i>
+                    Nuevo Médico
+                </a>
+                <button class="btn btn-sm btn-light text-primary" type="button" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                    <i class="me-1" data-feather="plus"></i>
+                    Nueva Especialidad
+                </button>
+            </div>                         
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+{% block contenido %}
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% elif message.tags == 'error' %}
+            <div class="alert alert-danger" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<!-- Main page content-->
+<div class="container-fluid px-4">
+    <div class="card">
+        <div class="card-body d-flex justify-content-evenly">
+        {% if medicos %}
+            <table id="datatablesSimple">
+                <thead class="text-primary text-center">
+                    <tr>
+                        <th>DNI</th>
+                        <th>Médico</th>
+                        <th>Edad</th>
+                        <th>Especialidad</th>
+                        <th>Matrícula</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tfoot class="text-primary text-center">
+                    <tr>
+                        <th>DNI</th>
+                        <th>Médico</th>
+                        <th>Edad</th>
+                        <th>Especialidad</th>
+                        <th>Matrícula</th>
+                        <th>Acciones</th>
+                    </tr>
+                </tfoot>
+                <tbody class="small mb-1 text-center">
+                    {% for medico in medicos %}
+                    <tr>
+                        <td>{{medico.dni}}</td>
+                        <td>{{medico.get_fullname}}</td>
+                        <td>{{medico.get_edad}}</td>
+                        <td>{{medico.especialidad.nombre}}</td>
+                        {% if medico.matricula %}
+                            <td>{{medico.matricula}}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %}
+                        <td>    
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'edit_medico' medico.id  %}" title="Editar"><i data-feather="edit"></i></a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'delete_medico' medico.id  %}" title="Eliminar"><i data-feather="trash-2"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay médicos registrados...</p>
+        {% endif %}
+        </div>
+    </div>
+</div>
+<!-- Create group modal-->
+<div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGroupModalLabel">Crear Especialidad</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'add_especialidad' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-0">
+                        <label class="mb-1 small text-muted" for="formGroupName">Nombre</label>
+                        <input class="form-control" id="formGroupName" type="text" name="nombreEsp" placeholder="Ingrese el nombre" />
+                    </div>
+                </div>
+                <div class="modal-footer dflex justify-content-evenly">
+                    <button class="btn btn-primary-soft text-primary" type="submit">Crear</button>
+                    <button class="btn btn-danger-soft text-danger" type="button" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock%}

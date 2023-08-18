@@ -1,0 +1,27 @@
+<div class="row gx-3 mb-3">
+{% if form.userForm %}
+{% for campo in form.userForm %}
+    {% if campo.name == 'username' %}
+    <input class="form-control" type="text" id="{{ campo.auto_id }}" name="{{ campo.name }}" value="{{ campo.value }}" hidden/>
+    {% else %}
+    <div class="form-group col-md-6 text-center">
+        <label class="small mb-1 fw-bold" for="">{{campo.label}}</label>
+        {{campo}}
+    
+        <div class="small mb-1 error">{{campo.errors}}</div>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if form.usuarioForm %}
+{% for campo in form.usuarioForm %}
+    <div class="form-group col-md-6 text-center">
+        <label class="small mb-1 fw-bold" for="">{{campo.label}}</label>
+        {{campo}}
+
+        <div class="small mb-1 error">{{campo.errors}}</div>
+    </div>
+{% endfor %}
+{% endif %}
+</div>

@@ -1,0 +1,152 @@
+{% extends '../../sat/private/base-dashboard.html' %}
+
+{% load static %}
+{% load get_property %}
+{% load generate_color %}
+{% load count %}
+{% block script %}
+    <script src="{% static 'encuesta/index/responses-2.js' %}" defer></script>
+    <script src="{% static 'encuesta/lib/cookie.min.js' %}"></script>
+{% endblock %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+                <h1 class="page-header-title">
+                <div class="page-header-icon"><i data-feather="bar-chart-2"></i></div>
+                    Resultados de {{ form.title }}
+                </h1>
+            </div>
+            <div class="modal" id="send-form" style="width:60vw;">
+                <div class="modal-content">
+                    <span class="modal-close-btn" id="close-send-form">&times;</span>
+                    <div class="modal-division">
+                        <h4 class="modal-subtitle mb-2 text-center">Link</h4>
+                        <input type="url" class="form-control" value="http://{{request.get_host}}/form/{{form.code}}/viewform" copy-btn id="copy-url">
+                    </div>
+                    <button class="btn btn-submit btn-secondary btn-sm mt-2" copy-btn>Copiar</button>
+                </div>
+            </div>
+            <div class="col-12 col-xl-auto mb-3">
+                <a class="btn btn-info btn-sm ms-2" type="button" href="{% url 'view_encuesta' form.code %}">Ver Encuesta</a>
+                <a class="btn btn-secondary btn-sm ms-2" type="button" href="{% url 'unpublish_encuesta' form.code %}">Pasar a Borrador</a>
+                <a class="btn btn-warning btn-sm ms-2" type="button" id="send-form-btn">Obtener Link</a>
+                {% if responses %}
+                <button class="btn btn-danger btn-sm ms-2" id="delete-responses"><span class="form-template-label">Eliminar Respuestas</span></button>
+                {% endif %}
+                <a class="btn btn-sm btn-light text-primary ms-2" href="{% url 'list_encuestas' %}">
+                    <i class="me-1" data-feather="arrow-left"></i>
+                    Volver a la Lista de Encuestas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block contenido %}
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% elif message.tags == 'error' %}
+            <div class="alert alert-danger" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<div class="container-fluid px-4">
+    <span id="bg-color" style="display: none;">{{form.background_color}}</span>
+    <span id="text-color" style="display: none;">{{form.text_color}}</span>
+    <div class="card mb-3">
+        <div class="card-body d-flex justify-content-evenly" id="responses">
+        {% if responses %}
+            <table id="datatablesSimple">
+                <thead class="text-primary text-center">
+                    <tr>
+                        <th>Paciente</th>
+                        {% if form.authenticated_responder %}
+                        <th>Fecha</th>
+                        {% endif %}
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center small">
+                    {% for i in responses %}
+                    <tr>
+                        {% if form.authenticated_responder %}
+                            {% for encuesta in form.pacienterealizaencuesta_set.all %}
+                            <td>{{ encuesta.paciente.get_fullname }}</td>
+                            <td class="form-list-timestamp">
+                                {% if encuesta.fechaCreacion == encuesta.fechaModificacion %}
+                                    {{ encuesta.fechaCreacion }}
+                                {% else %}
+                                    {{ encuesta.fechaModificacion }}
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        {% elif form.collect_email %}
+                            <td>{{ i.responder_email }}</td>
+                        {% else %}
+                            <td>{{ i.responder_ip }}</td>
+                        {% endif %}
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'response' form.code i.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No hay respuestas registradas...</p>
+        {% endif %}
+    </div>
+</div>
+{% if responses %}
+<div class="container-fluid px-4">
+    <div class="card">
+        <div class="card-body text-center p-5">
+            <h1 class="text-dark mb-4"><i class="mx-3" data-feather="trending-up"></i>Estadísticas</h1>
+            {% for r in responsesSummary %}
+            <div class="response-summary">
+                <h5 class="response-summary-title fs-5 mb-2">{{r.question.question}}</h5>
+                {% if r.answers|count > 0 or filteredResponsesSummary|get_property:r.question.question|count > 0 %}
+                    {% if r.question.question_type == 'short' or r.question.question_type == 'paragraph' %}
+                        {% for i in r.answers %}
+                            <blockquote>{{i.answer}}</blockquote>
+                        {% endfor %}
+                    {% else %}
+                            <canvas id="myChart{{r.question.id}}" class="pie-chart"></canvas>
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+                            <script>
+                                Chart.defaults.global.defaultFontFamily = "Roboto";
+                                Chart.defaults.global.defaultFontSize = 50;
+                                var ctx = document.getElementById("myChart{{r.question.id}}");
+                                let chartData{{r.question.id}} = {labels: [{% for i in filteredResponsesSummary|get_property:r.question.question %}"{{i}}",{% endfor %}], 
+                                datasets: [{
+                                    data: [{% for i in filteredResponsesSummary|get_property:r.question.question %}{{filteredResponsesSummary|get_property:r.question.question|get_property:i}},{% endfor %}],
+                                    backgroundColor: [{% for _ in filteredResponsesSummary|get_property:r.question.question %}"{{0|generate_color}}",{% endfor %}],
+                                }]}
+                                new Chart(ctx, {type: 'pie', data: chartData{{r.question.id}}, options: {responsive: true}});
+                            </script>
+                    {% endif %}
+                {% else %}
+                <blockquote><i>Sin respuestas</i></blockquote>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>    
+</div>
+{% endif %}
+{% endblock %}

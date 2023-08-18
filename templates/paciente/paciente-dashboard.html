@@ -1,0 +1,178 @@
+{% extends '../sat/private/base-dashboard.html' %}
+
+{% block encabezado %}
+{% endblock%}
+
+{% load static %}
+{% block contenido %}
+<!-- Main page content-->
+<div class="container-xl px-4 mt-4">
+    <div class="row">
+        <div class="col-xxl-4 col-xl-12 mb-4">
+            <div class="card h-100">
+                <div class="card-body h-100 p-5">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <div class="text-center mb-4 mb-xl-0 mb-xxl-4">
+                                <h1 class="text-primary">Bienvenido/a {{ user.first_name }} {{ user.last_name }}!</h1>
+                                <br>
+                                <p class="text-gray-600 mb-0">Empiece a usar el software del Hospital Favaloro<br>que realiza el seguimiento de su adherencia terapéutica</p>
+                            </div>
+                        </div>
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" role="alert">
+                                        <p class="text-center">{{message}}</p>
+                                    </div>
+                                {% elif message.tags == 'error' %}
+                                    <div class="alert alert-danger" role="alert">
+                                        <p class="text-center">{{message}}</p>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-info" role="alert">
+                                        <p class="text-center">{{message}}</p>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 mb-4">
+            <!-- Dashboard example card 1-->
+            <a class="card lift h-100" href="#!">
+                <div class="card-body d-flex justify-content-center flex-column">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="me-3">
+                            <i class="feather-xl text-primary mt-2 mb-3" data-feather="activity"></i>
+                            <h5 class="text-primary">Seguimiento Continuo</h5>
+                            <div class="text-muted small">Vamos a realizar un seguimiento continuo de su estado terapéutico con el fin de promover su adherencia al tratamiento</div>
+                        </div>
+                        <img src="{% static 'assets-dash/img/illustrations/browser-stats.svg' %}" alt="..." style="width: 8rem" />
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4 mb-4">
+            <!-- Dashboard example card 2-->
+            <a class="card lift h-100" href="#!">
+                <div class="card-body d-flex justify-content-center flex-column">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="me-3">
+                            <i class="feather-xl text-secondary mt-n1 mb-3" data-feather="bar-chart-2"></i>
+                            <h5 class="text-secondary">Estadísticas</h5>
+                            <div class="text-muted small">Vamos a obtener estadísticas a partir de sus respuestas a las encuestas, con el fin de proporcionarle un tratamiento adecuado</div>
+                        </div>
+                        <img src="{% static 'assets-dash/img/illustrations/statistics.svg' %}" alt="..." style="width: 8rem" />
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4 mb-4">
+            <!-- Dashboard example card 3-->
+            <a class="card lift h-100" href="#!">
+                <div class="card-body d-flex justify-content-center flex-column">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="me-3">
+                            <i class="feather-xl text-green mt-n3 mb-3" data-feather="book"></i>
+                            <h5 class="text-green">Educación</h5>
+                            <div class="text-muted small">Vamos a promover la educación con el objetivo de que conviva de la mejor manera posible con su enfermedad</div>
+                        </div>
+                        <img src="{% static 'assets-dash/img/illustrations/windows.svg' %}" alt="..." style="width: 8rem" />
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xxl-8">
+            <!-- Tabbed dashboard card example-->
+            <div class="card mb-4">
+                <div class="card-header border-bottom">
+                    <!-- Dashboard card navigation-->
+                    <ul class="nav nav-tabs card-header-tabs" id="dashboardNav" role="tablist">
+                        <li class="nav-item me-1"><a class="nav-link active" id="overview-pill" href="#tema1" data-bs-toggle="tab" role="tab" aria-controls="overview" aria-selected="true">Dislipidemia</a></li>
+                        <li class="nav-item"><a class="nav-link" id="activities-pill" href="#tema2" data-bs-toggle="tab" role="tab" aria-controls="activities" aria-selected="false">Tipos de Colesterol</a></li>
+                        <li class="nav-item"><a class="nav-link" id="activities-pill" href="#tema3" data-bs-toggle="tab" role="tab" aria-controls="activities" aria-selected="false">Tratamiento</a></li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="dashboardNavContent">
+                        <!-- Dashboard Tab Pane 1-->
+                        <div class="tab-pane fade show active" id="tema1" role="tabpanel" aria-labelledby="overview-pill">
+                            <p class="text-dark small">Las dislipidemias, también llamadas dislipemias o hiperlipidemias, son trastornos en los 
+                                lípidos en sangre caracterizados por un aumento de los niveles de colesterol 
+                                (hipercolesterolemia) e incrementos de las concentraciones de triglicéridos 
+                                (hipertrigliceridemia). Suelen estar acompañadas de otras alteraciones como la diabetes 
+                                mellitus tipo 2, la gota, el hipotiroidismo, el síndrome metabólico, entre otros. Además, como 
+                                favorecen el depósito de lípidos en las paredes arteriales, son entidades que constituyen un 
+                                factor de riesgo de aterosclerosis y enfermedades cardiovasculares. Debido a su elevada 
+                                prevalencia, las dislipidemias constituyen una problemática a nivel mundial porque aumentan 
+                                el riesgo de morbilidad y muerte por diversas enfermedades.
+                            </p>
+                        </div>
+                        <!-- Dashboard Tab Pane 2-->
+                        <div class="tab-pane fade" id="tema2" role="tabpanel" aria-labelledby="activities-pill">
+                            <p class="text-dark small">
+                                En cuanto al transporte de lípidos en sangre, como son moléculas insolubles en el plasma 
+                                sanguíneo, circulan unidos a proteínas en forma de lipoproteínas. La densidad de las 
+                                lipoproteínas se debe a la proporción relativa de lípidos y proteínas, entonces su composición 
+                                varía por el intercambio que sufren de estas moléculas. Las lipoproteínas más ricas en lípidos 
+                                son los quilomicrones y las abundantes en proteínas son las lipoproteínas de alta densidad 
+                                (HDL, por sus siglas en inglés “High Density Lipoprotein”). Estas últimas tienen un efecto 
+                                beneficioso porque intervienen en el transporte reverso del colesterol desde los tejidos y las 
+                                paredes arteriales hasta el hígado, donde es excretado por la bilis al intestino.
+                                Por otra parte, las lipoproteínas de baja densidad (LDL, por sus siglas en inglés “Low Density 
+                                Lipoprotein”) se encargan de transportar el colesterol hacia los diferentes tejidos, que lo 
+                                emplean en la síntesis de hormonas esteroides, vitamina D y sales biliares. El incremento en la 
+                                concentración de las LDL está directamente relacionado con el riesgo de padecer eventos 
+                                cardiovasculares.
+                                Por estas razones, al colesterol unido a las HDL se lo llama comúnmente "colesterol bueno", 
+                                mientras que al que está unido a las LDL se lo denomina "colesterol malo".
+                            </p>
+                        </div>
+                        <!-- Dashboard Tab Pane 3-->
+                        <div class="tab-pane fade" id="tema3" role="tabpanel" aria-labelledby="activities-pill">
+                            <p class="text-dark small">
+                                Respecto al tratamiento, las dislipidemias se tratan con modificaciones en los estilos de vida y 
+                                medicamentos. En principio, los desórdenes lipídicos pueden ser modificados con cambios en 
+                                los estilos de vida, dietas sanas, ejercicios físicos y eliminación de los hábitos tóxicos, como el 
+                                tabaquismo. Sin embargo, también se pueden adoptar tratamientos farmacológicos donde los
+                                principales medicamentos empleados son las estatinas, los secuestrantes de ácidos biliares y 
+                                los fibratos.<br>
+                                Por su parte, las estatinas representan un conjunto de medicamentos muy efectivos en el 
+                                tratamiento de las dislipidemias ya que inhiben la enzima Hidroxi Metil Glutaril CoA 
+                                reductasa que interviene en la síntesis de colesterol en las células y, al reducirse la formación 
+                                de colesterol, se produce una disminución de la colesterolemia. Por este motivo, en la 
+                                actualidad, las estatinas constituyen el grupo de drogas hipolipemiantes de primera línea más 
+                                recomendado por los documentos de consenso para no sólo reducir las LDL y la mortalidad 
+                                cardiovascular sino también para generar un pequeño aumento de las HDL acompañado de 
+                                una modesta disminución de los triglicéridos. También se les adjudica una serie de efectos 
+                                antiinflamatorios, antitrombóticos y antioxidantes que no están relacionados con el descenso 
+                                de colesterol. A su vez, las estatinas reducen el riesgo de muerte cardiovascular, infarto no 
+                                fatal, accidente cerebro vascular y requerimiento de revascularizaciones. En cuanto a los 
+                                efectos adversos, son poco frecuentes, se producen principalmente en adultos mayores y en 
+                                personas con varias enfermedades y están relacionados con el músculo, como mialgias 
+                                (dolores musculares), miositis (inflamación muscular) o rabdomiólisis (descomposición del 
+                                tejido muscular).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Illustration dashboard card example-->
+            <div class="card">
+                <div class="card-body text-center p-5">
+                    <h5 class="text-primary text-uppercase">Equipo Interdisciplinario</h5>
+                    <p class="mb-4">Consideramos que las enfermedades crónicas deben ser tratadas de manera integral, por lo tanto,
+                    es fundamental armar equipos de trabajo formados por especialistas en distintas temáticas que coparticipen
+                    de manera dinámica con el objetivo final de mejorar la calidad de vida del paciente.</p>
+                    <img class="img-fluid mb-4" src="{% static 'assets-dash/img/illustrations/team-spirit.svg' %}" alt="" style="max-width: 16.25rem" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

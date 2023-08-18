@@ -1,0 +1,35 @@
+<div class="row gx-3 mb-3">
+{% if form.userForm %}
+{% for campo in form.userForm %}
+    {% if campo.name != 'password' %}
+    <div class="form-group col-md-6 text-center">
+        <label class="small mb-1 fw-bold" for="">{{campo.label}}</label>
+        {{campo}}
+    
+        <div class="small mb-1 error">{{campo.errors}}</div>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endif %}
+</div>
+<div class="row gx-3 mb-3">
+{% if form.usuarioForm %}
+{% for campo in form.usuarioForm %}
+    {% if campo.name == 'imagen' %}  
+    <div class="form-group col-md-12 text-center">
+        <label class="small mb-1 fw-bold" for="">{{campo.label}}</label>
+        <p class="small mb-1 fw-light">{{campo}}</p>
+
+        <div class="small mb-1 error">{{campo.errors}}</div>
+    </div>
+    {% else %}
+    <div class="form-group col-md-6 text-center">
+        <label class="small mb-1 fw-bold" for="">{{campo.label}}</label>
+        {{campo}}
+
+        <div class="small mb-1 error">{{campo.errors}}</div>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endif %}
+</div>

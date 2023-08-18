@@ -1,0 +1,72 @@
+{% extends '../base-dashboard.html' %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+                <h1 class="page-header-title">
+                    <div class="page-header-icon"><i data-feather="users"></i></div>
+                    Lista de Usuarios
+                </h1>
+            </div>
+            <div class="col-12 col-xl-auto mb-3">
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'groups_usuarios' %}">
+                    <i class="me-1" data-feather="users"></i>
+                    Grupos de Usuarios
+                </a>
+            </div>                         
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+{% block contenido %}
+<!-- Main page content-->
+<div class="container-fluid px-4">
+    <div class="card">
+        <div class="card-body d-flex justify-content-evenly">
+        {% if usuarios %}
+            <table id="datatablesSimple">
+                <thead class="text-primary text-center">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Grupo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tfoot class="text-primary text-center">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Grupo</th>
+                        <th>Estado</th>
+                    </tr>
+                </tfoot>
+                <tbody class="small mb-1 text-center">
+                    {% for usuario,grupo in usuarios %}
+                    <tr>
+                        <td>{{usuario.username}}</td>
+                        <td>{{grupo}}</td>
+                        {% if usuario.paciente or usuario.medico %}
+                            {% if usuario.paciente.status == True or usuario.medico.status == True %}
+                            <td class="text-success fw-bold">Aceptado
+                            {% else %}
+                            <td class="text-warning fw-bold">Pendiente
+                            {% endif %}
+                        {% else %}
+                        <td class="text-success fw-bold">Aceptado
+                        {% endif %}
+                        </td>
+                    {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay usuarios registrados...</p>
+        {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock%}

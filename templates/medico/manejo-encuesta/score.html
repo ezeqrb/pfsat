@@ -1,0 +1,102 @@
+{% extends '../../sat/private/base-dashboard.html' %}
+
+{% load static %}
+{% block script %}
+    <script src="{% static 'encuesta/index/score.js' %}" defer></script>
+    <script src="{% static 'encuesta/lib/cookie.min.js' %}"></script>
+{% endblock %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+                <h1 class="page-header-title">
+                <div class="page-header-icon"><i data-feather="settings"></i></div>
+                    Colocar Puntaje
+                </h1>
+            </div>
+            <div class="col-12 col-xl-auto mb-3">
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'edit_encuesta' form.code %}">
+                    <i class="me-1" data-feather="arrow-left"></i>
+                    Volver a Editar Encuestas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="container">
+        <span id="bg-color" style="display: none;">{{form.background_color}}</span>
+        <span id="text-color" style="display: none;">{{form.text_color}}</span>
+        <div class="margin-top-bottom box question-box" id="form-head">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="form-title-box">
+                        <h1 class="form-title edit-on-click txt-clr text-center">{{form.title}}</h1>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="form-description edit-on-click txt-clr" id="textarea-adjust">{{form.description|linebreaksbr}}</p>
+                </div>
+            </div>
+        </div>
+        {% for question in form.questions.all %}
+        <div class="margin-top-bottom box question-box question" data-id="{{question.id}}">
+            <div class="card mb-4 form-navigation">
+                <div class="card-header">
+                    <h4 class="question-title-score">{{question.question}}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="answer-key">
+                        <label class="mb-1 fw-bold">Respuesta Correcta</label>
+                        {% if question.question_type == "short" %}
+                            <p class="answer-key-title">Clave de la respuesta:</p>
+                            <input type="text" class="short-answer" data-id="{{question.id}}" data-question-type = "{{question.question_type}}" answer-key
+                            value="{{question.answer_key}}">
+                        {% elif question.question_type == "paragraph" %}
+                            <p class="answer-key-title">Clave de la respuesta:</p>
+                            <textarea class="long-answer" id="textarea-adjust" data-question-type = "{{question.question_type}}" answer-key 
+                            data-id="{{question.id}}">{{question.answer_key}}
+                            </textarea>
+                        {% elif question.question_type == "multiple choice" %}
+                            {% for i in question.choices.all %}
+                            <div class="form-group">
+                                <input type="checkbox" name="{{question.id}}-multiple-choice" id="choice-{{i.id}}" data-id="{{question.id}}" value="{{i.id}}" answer-key
+                                data-question_type = "{{question.question_type}}" {% if i.is_answer %} checked {% endif %}>
+                                <label for="choice-{{i.id}}">{{i.choice}}</label>
+                            </div>
+                            {% endfor %}
+                        {% elif question.question_type == "checkbox" %}
+                            {% for i in question.choices.all %}
+                            <div class="form-group">
+                                <input type="radio" name="{{question.id}}-checkbox" id="choice-{{i.id}}" data-id="{{question.id}}" value="{{i.id}}"
+                                data-question_type = "{{question.question_type}}" answer-key {% if i.is_answer %} checked {% endif %}>
+                                <label for="choice-{{i.id}}">{{i.choice}}</label>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="question-score mt-3">
+                        <label for="score" class="mb-1 fw-bold">Puntos</label>
+                        <input type="number" data-id="{{question.id}}" id="input-score" class="form-control" value="{{question.score}}" style="width:150px;">
+                    </div>
+                    <div class="feedback mt-3">
+                        <label for="feedback" class="mb-1 fw-bold">Comentarios</label>
+                        {% if question.feedback != None %}
+                        <textarea rows="5" id="textarea-adjust" class="long-answer form-control" data-id="{{question.id}}" name="feedback">{{question.feedback}}</textarea>
+                        {% else %}
+                        <textarea rows="5" class="long-answer textarea-adjust form-control" data-id="{{question.id}}" name="feedback"></textarea>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

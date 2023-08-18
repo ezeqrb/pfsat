@@ -1,0 +1,275 @@
+{% extends '../sat/private/base-dashboard.html' %}
+
+{% block encabezado %}
+{% endblock%}
+
+{% block contenido %}
+<!-- Main page content-->
+<div class="container-xl px-4 mt-4">
+    <div class="row">
+        <div class="col-xxl-4 col-xl-12 mb-4">
+            <div class="card h-100">
+                <div class="card-body h-100 p-5">
+                    <div class="row align-items-center">
+                        <div class="col-xl-8 col-xxl-12">
+                            <div class="text-center text-xxl-center mb-4 mb-xl-0 mb-xxl-4">
+                                <h1 class="text-primary">Bienvenido/a {{ user.first_name }} {{ user.last_name }}!</h1>
+                                <br>
+                                <p class="text-gray-600 mb-0">No se pierda la oportunidad de utilizar el software del Hospital Favaloro<br>que realiza el seguimiento de adherencia terapéutica de pacientes con enfermedades crónicas</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-xxl-12 text-center"><img class="img-fluid" src="../../../static/assets-dash/img/illustrations/ImagenMedico.png" style="width: 13rem" /></div>
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" role="alert">
+                                        <p class="text-center">{{message}}</p>
+                                    </div>
+                                {% elif message.tags == 'error' %}
+                                    <div class="alert alert-danger" role="alert">
+                                        <p class="text-center">{{message}}</p>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-info" role="alert">
+                                        <p class="text-center">{{message}}</p>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header text-center">SOLICITUDES DE PACIENTES</div>
+        <div class="card-body d-flex justify-content-evenly">
+        {% if pacientes %}
+            <table id="datatablesSimple">
+                <thead class="text-primary text-center">
+                    <tr>
+                        <th>DNI</th>
+                        <th>Paciente</th>
+                        <th>Edad</th>
+                        <th>Obra Social</th>
+                        <th>Nº de Obra Social</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tfoot class="text-primary text-center">
+                    <tr>
+                        <th>DNI</th>
+                        <th>Paciente</th>
+                        <th>Edad</th>
+                        <th>Obra Social</th>
+                        <th>Nº de Obra Social</th>
+                        <th>Acciones</th>
+                    </tr>
+                </tfoot>
+                <tbody class="small mb-1 text-center">
+                    {% for paciente in pacientes %}
+                    <tr>
+                        <td>{{paciente.dni}}</td>
+                        <td>{{paciente.get_fullname}}</td>
+                        <td>{{paciente.get_edad}}</td>
+                        <td>{{paciente.obraSocial.nombre}}</td>
+                        {% if paciente.numeroObraSocial %}
+                            <td>{{paciente.numeroObraSocial}}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %}
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'approve_user_view' paciente.user.id  %}" title="Aprobar"><i data-feather="plus-circle"></i></a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'reject_user_view' paciente.user.id  %}" title="Rechazar"><i data-feather="x-circle"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay solicitudes pendientes de pacientes...</p>
+        {% endif %}
+        </div>
+    </div>
+    <!-- Illustration dashboard card example-->
+    <div class="card mb-4">
+        <div class="card-body text-center p-5">
+            <h5 class="text-primary">Mi Agenda</h5>
+            <p class="mb-4">Upgrade your plan to get access to team collaboration tools.</p>
+            <a class="btn btn-primary p-3" href="#!">Upgrade</a>
+        </div>
+    </div>
+    <!-- Example Colored Cards for Dashboard Demo-->
+    <div class="row">
+        <div class="col-lg-6 col-xl-3 mb-4">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <div class="text-white-75">Encuestas Publicadas</div>
+                            <div class="text-lg fw-bold"></div>
+                        </div>
+                        <i class="feather-xl text-white-50" data-feather="calendar"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between small">
+                    <a class="text-white stretched-link" href="#!">Ver más...</a>
+                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-xl-3 mb-4">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <div class="text-white-75">Encuestas En Borrador</div>
+                            <div class="text-lg fw-bold"></div>
+                        </div>
+                        <i class="feather-xl text-white-50" data-feather="dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between small">
+                    <a class="text-white stretched-link" href="#!">Ver más...</a>
+                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-xl-3 mb-4">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <div class="text-white-75">Mis Pacientes</div>
+                            <div class="text-lg fw-bold"></div>
+                        </div>
+                        <i class="feather-xl text-white-50" data-feather="check-square"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between small">
+                    <a class="text-white stretched-link" href="#!">Ver más...</a>
+                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-xl-3 mb-4">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <div class="text-white-75">Solicitudes Pendientes de Pacientes</div>
+                            <div class="text-lg fw-bold"></div>
+                        </div>
+                        <i class="feather-xl text-white-50" data-feather="message-circle"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between small">
+                    <a class="text-white stretched-link" href="#!">Ver más...</a>
+                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 mb-4">
+        <div class="card card-header-actions h-100">
+            <div class="card-header">
+                Actividad reciente
+                <div class="dropdown no-caret">
+                    <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="text-gray-500" data-feather="more-vertical"></i></button>
+                    <div class="dropdown-menu dropdown-menu-end animated--fade-in-up" aria-labelledby="dropdownMenuButton">
+                        <h6 class="dropdown-header">Filtrar actividad:</h6>
+                        <a class="dropdown-item" href="#!"><span class="badge bg-green-soft text-green my-1">Nuevo usuario</span></a>
+                        <a class="dropdown-item" href="#!"><span class="badge bg-blue-soft text-blue my-1">Envio un mensaje</span></a>
+                        <a class="dropdown-item" href="#!"><span class="badge bg-yellow-soft text-yellow my-1">Encuesta contestada</span></a>
+                        <a class="dropdown-item" href="#!"><span class="badge bg-purple-soft text-purple my-1">Usarios</span></a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="timeline timeline-xs">
+                    <!-- Timeline Item 1-->
+                    <div class="timeline-item">
+                        <div class="timeline-item-marker">
+                            <div class="timeline-item-marker-text">27 min</div>
+                            <div class="timeline-item-marker-indicator bg-green"></div>
+                        </div>
+                        <div class="timeline-item-content">
+                            New order placed!
+                            <a class="fw-bold text-dark" href="#!">Order #2912</a>
+                            has been successfully placed.
+                        </div>
+                    </div>
+                    <!-- Timeline Item 2-->
+                    <div class="timeline-item">
+                        <div class="timeline-item-marker">
+                            <div class="timeline-item-marker-text">58 min</div>
+                            <div class="timeline-item-marker-indicator bg-blue"></div>
+                        </div>
+                        <div class="timeline-item-content">
+                            Your
+                            <a class="fw-bold text-dark" href="#!">weekly report</a>
+                            has been generated and is ready to view.
+                        </div>
+                    </div>
+                    <!-- Timeline Item 3-->
+                    <div class="timeline-item">
+                        <div class="timeline-item-marker">
+                            <div class="timeline-item-marker-text">2 hrs</div>
+                            <div class="timeline-item-marker-indicator bg-purple"></div>
+                        </div>
+                        <div class="timeline-item-content">
+                            New user
+                            <a class="fw-bold text-dark" href="#!">Valerie Luna</a>
+                            has registered
+                        </div>
+                    </div>
+                    <!-- Timeline Item 4-->
+                    <div class="timeline-item">
+                        <div class="timeline-item-marker">
+                            <div class="timeline-item-marker-text">1 day</div>
+                            <div class="timeline-item-marker-indicator bg-yellow"></div>
+                        </div>
+                        <div class="timeline-item-content">Server activity monitor alert</div>
+                    </div>
+                    <!-- Timeline Item 5-->
+                    <div class="timeline-item">
+                        <div class="timeline-item-marker">
+                            <div class="timeline-item-marker-text">1 day</div>
+                            <div class="timeline-item-marker-indicator bg-green"></div>
+                        </div>
+                        <div class="timeline-item-content">
+                            New order placed!
+                            <a class="fw-bold text-dark" href="#!">Order #2911</a>
+                            has been successfully placed.
+                        </div>
+                    </div>
+                    <!-- Timeline Item 6-->
+                    <div class="timeline-item">
+                        <div class="timeline-item-marker">
+                            <div class="timeline-item-marker-text">1 day</div>
+                            <div class="timeline-item-marker-indicator bg-purple"></div>
+                        </div>
+                        <div class="timeline-item-content">
+                            Details for
+                            <a class="fw-bold text-dark" href="#!">Marketing and Planning Meeting</a>
+                            have been updated.
+                        </div>
+                    </div>
+                    <!-- Timeline Item 7-->
+                    <div class="timeline-item">
+                        <div class="timeline-item-marker">
+                            <div class="timeline-item-marker-text">2 days</div>
+                            <div class="timeline-item-marker-indicator bg-green"></div>
+                        </div>
+                        <div class="timeline-item-content">
+                            New order placed!
+                            <a class="fw-bold text-dark" href="#!">Order #2910</a>
+                            has been successfully placed.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock%}

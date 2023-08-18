@@ -1,0 +1,51 @@
+{% extends 'index/layout_medico.html' %}
+{% load static %}
+{% block script %}
+<script src="{% static 'index/viewform.js' %}" defer></script>
+{% endblock %}
+{% block body %}
+<div id="layoutSidenav_content">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+                    <div class="col-auto mb-3">
+                        <h1 class="page-header-title">
+                            <div class="page-header-icon"><i data-feather="file-plus"></i></div>
+                            Muchas gracias por su respuesta
+                        </h1>
+                    </div>
+                    <div class="col-12 col-xl-auto mb-3">
+                        <a class="btn btn-sm btn-light text-primary" href="#">
+                            <i class="me-1" data-feather="arrow-left"></i>
+                            Volver al inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <span id="bg-color" style="display: none;">{{form.background_color}}</span>
+        <span id="text-color" style="display: none;">{{form.text_color}}</span>
+        <div class="margin-top-bottom box box-shadow bg-white">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h1 class="form-title txtClr">{{form.title}}</h1>
+                </div>
+                <div class="card-body">
+                    <p class="text-label margin-left-right" style="margin-left: 10px;">{{form.confirmation_message}}</p>
+                    {% if form.edit_after_submit %}
+                    <a href="{% url 'edit_response' form.code code %}" style="padding: 10px 15px; border: none; cursor: pointer; margin-bottom: 4rem;">Editar respuestas</a>
+                    {% endif %}
+                    {% if form.is_quiz and form.allow_view_score %}
+                    <div class="modal-division">
+                        <a href="{% url 'response' form.code code %}" style="padding: 10px 15px; border: none; cursor: pointer; margin-bottom: 1rem;">Ver puntaje</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

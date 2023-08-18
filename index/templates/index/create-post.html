@@ -1,0 +1,49 @@
+{% extends 'index/layout_medico.html' %}
+{% load static %}
+{% block script %}
+{% endblock %}
+{% load static %}
+{% block body %}
+    <div id="layoutSidenav_content">
+        <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+            <div class="container-fluid px-4">
+                <div class="page-header-content">
+                    <div class="row align-items-center justify-content-between pt-3">
+                        <div class="col-auto mb-3">
+                            <h1 class="page-header-title">
+                                <div class="page-header-icon"><i data-feather="file-plus"></i></div>
+                                Crear encuesta
+                            </h1>
+                        </div>
+                        <div class="col-12 col-xl-auto mb-3">
+                            <a class="btn btn-sm btn-light text-primary" href="{% url 'form_list' %}">
+                                <i class="me-1" data-feather="arrow-left"></i>
+                                Ir a lista de encuestas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="create-form">
+            <div class="container">
+                <div class="form-template-box">
+                    <button class="btn btn-primary" style="margin-bottom: 1rem;" alt = "Blank form" title = "Blank form" id="create-blank-form">
+                    <span class="form-template-label">Encuesta en blanco</span>
+                </div>
+                <div class="form-template-box big-screen">
+                    <button class="btn btn-primary" style="margin-bottom: 1rem;" alt = "Contact Information" title = "Contact Information" id="create-contact-form">
+                    <span class="form-template-label">Informacion de contacto</span>
+                </div>
+                <div class="form-template-box big-screen">
+                    <button class="btn btn-primary" style="margin-bottom: 1rem;" alt = "Customer Feedback" title = "Customer Feedback" id="create-customer-feedback">
+                    <span class="form-template-label">Feedback del cliente</span>
+                </div>
+                <div class="form-template-box big-screen">
+                    <button class="btn btn-primary" style="margin-bottom: 1rem;" alt = "Event Registration" title = "Event Registration" id="create-event-registration">
+                    <span class="form-template-label">Registro a evento</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

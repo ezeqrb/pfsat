@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  app:
+    image: ezeqrb/pfsat:latest
+    container_name: pfsat
+    restart: always
+    ports:
+      - "80:8000"
+    environment:
+      ENV: production
+      
+  appDev:
+    image: ezeqrb/psatdev:latest
+    container_name: pfsatdev
+    restart: always
+    ports:
+      -"80:8000"
+    environment:
+    ENV: development

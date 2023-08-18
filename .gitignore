@@ -1,0 +1,13 @@
+PF_SAT/__pycache__/
+PF_SAT/.env
+sat/__pycache__/
+sat/migrations/__pycache__/
+index/__pycache__/
+index/templatetags/__pycache__
+index/migrations/__pycache__
+medico/__pycache__/
+medico/migrations/__pycache__/
+paciente/__pycache__/
+paciente/migrations/__pycache__/
+media/
+venv

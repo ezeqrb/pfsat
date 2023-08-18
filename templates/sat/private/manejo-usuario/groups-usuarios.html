@@ -1,0 +1,132 @@
+{% extends '../base-dashboard.html' %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+                <h1 class="page-header-title">
+                    <div class="page-header-icon"><i data-feather="users"></i></div>
+                    Grupos de Usuarios
+                </h1>
+            </div>
+            <div class="col-12 col-xl-auto mb-3">
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'list_usuarios' %}">
+                    <i class="me-1" data-feather="arrow-left"></i>
+                    Volver a la Lista de Usuarios
+                </a>
+                <button class="btn btn-sm btn-light text-primary" type="button" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                    <i class="me-1" data-feather="plus"></i>
+                    Nuevo Grupo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock%}
+
+{% block contenido %}
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% elif message.tags == 'error' %}
+            <div class="alert alert-danger" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<!-- Main page content-->
+<div class="container-fluid px-4">
+    <div class="card">
+        <div class="card-body d-flex justify-content-evenly">
+        {% if grupos %}
+            <table id="datatablesSimple">
+                <thead class="text-primary text-center">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cantidad de Miembros</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="small mb-1 text-center">
+                    {% for grupo,nusuarios in grupos %}
+                    <tr>
+                        <td>{{grupo.name}}</td>  
+                        <td>{{nusuarios}}</td> 
+                        <td>
+                            <button class="btn btn-datatable btn-icon btn-transparent-dark me-2" type="button" data-bs-toggle="modal" data-bs-target="#editGroupModal{{ grupo.id }}" title="Editar"><i data-feather="edit"></i></button>
+                            {% if grupo.name == 'ADMIN' %}
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'asignar_admin_group' %}" title="Asignar"><i data-feather="arrow-down-circle"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay grupos de usuarios registrados...</p>
+        {% endif %}
+        </div>
+    </div>
+</div>
+<!-- Create group modal-->
+<div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGroupModalLabel">Crear Grupo</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'add_group' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-0">
+                        <label class="mb-1 small text-muted" for="formGroupName">Nombre</label>
+                        <input class="form-control" id="formGroupName" type="text" name="nombre" placeholder="Ingrese el nombre" />
+                    </div>
+                </div>
+                <div class="modal-footer dflex justify-content-evenly">
+                    <button class="btn btn-primary-soft text-primary" type="submit">Crear</button>
+                    <button class="btn btn-danger-soft text-danger" type="button" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit group modal-->
+{% for grupo,nusuarios in grupos %}
+<div class="modal fade" id="editGroupModal{{ grupo.id }}" tabindex="-1" role="dialog" aria-labelledby="editGroupModalLabel" aria-hidden="true">#{{ grupo_id }}
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editGroupModalLabel">Editar Grupo</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'edit_group' grupo.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-0">
+                        <label class="mb-1 small text-muted" for="formGroupName">Nombre</label>
+                        <input class="form-control" id="formGroupName" type="text" name="name" value="{{grupo.name}}" />
+                    </div>
+                </div>
+                <div class="modal-footer dflex justify-content-evenly">
+                    <button class="btn btn-primary-soft text-primary" type="submit">Guardar</button>
+                    <button class="btn btn-danger-soft text-danger" type="button" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock%}

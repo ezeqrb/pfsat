@@ -1,0 +1,70 @@
+{% extends 'index/layout_medico.html' %}
+{% load static %}
+{% block script %}
+{% endblock %}
+{% load static %}
+{% block body %}
+    <div id="layoutSidenav_content">
+        <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+            <div class="container-fluid px-4">
+                <div class="page-header-content">
+                    <div class="row align-items-center justify-content-between pt-3">
+                        <div class="col-auto mb-3">
+                            <h1 class="page-header-title">
+                                <div class="page-header-icon"><i data-feather="file-plus"></i></div>
+                                Lista de encuestas
+                            </h1>
+                        </div>
+                        <div class="col-12 col-xl-auto mb-3">
+                            <a class="btn btn-sm btn-light text-primary" href="{% url 'encuesta_nueva' %}">
+                                Crear encuesta
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class = "container-fluid px-4">
+            <div class="card">
+                <div class="card-body">
+
+                        <table id="datatablesSimple">
+                            <thead>
+                                <tr>
+                                    <th>Titulo</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in forms %}
+                                <tr>
+                                    <td>
+                                        <a href = "{% url 'edit_form' i.code %}" class="form-list-link">
+                                            <div class="form-box">
+                                                <div class="form-list-title"><h5 class="form-list-title-text">{{i.title}}</h5></div>
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="form-box">
+                                            {% if i.createdAt == i.updatedAt %}
+                                            <p class="form-list-timestamp">{{i.createdAt}}</p>
+                                            {% else %}
+                                            <p class="form-list-timestamp">{{i.updatedAt}}</p>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-sm btn-light text-primary" href="{% url 'edit_form' i.code %}">Editar</a>
+                                        <a class="btn btn-sm btn-light text-primary" href="{% url 'responses' i.code %}">Respuestas</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

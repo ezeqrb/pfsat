@@ -1,0 +1,97 @@
+{% extends '../../sat/private/base-dashboard.html' %}
+
+{% load static %}
+{% load get_response %}
+{% load to_int %}
+{% load is_response %}
+{% block script %}
+   <script src="{% static 'encuesta/index/viewform.js' %}" defer></script>
+{% endblock %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mb-3">
+                <h1 class="page-header-title">
+                <div class="page-header-icon"><i data-feather="edit"></i></div>
+                Editar {{form.title}}
+                </h1>
+            </div>
+            <div class="col-12 col-xl-auto mb-3">
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'list_encuestas' %}">
+                    <i class="me-1" data-feather="arrow-left"></i>
+                    Volver a Lista de Encuestas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <form class="container" method="POST" action="{% url 'edit_response' form.code response.response_code %}" autocomplete="off">
+        {% csrf_token %}
+        <span id="bg-color" style="display: none;">{{form.background_color}}</span>
+        <span id="text-color" style="display: none;">{{form.text_color}}</span>
+        <div class="margin-top-bottom box question-box">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="form-title-box">
+                        <h1 class="form-title txtClr">{{form.title}}</h1>
+                        <p class="required-info">(*) Campos Obligatorios</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-description txtClr">{{form.description|linebreaksbr}}</div>
+                </div>
+            </div>
+        </div>
+        {% for question in form.questions.all %}
+        <div class="card mb-3">
+            <div class="card-header">
+                {% if form.is_quiz %}
+                <h3 class="question-title txtClr">{{question.question}} {% if question.required %}<span class="require-star">*</span>{% endif %}</h3>
+                {% else %}
+                <h3 class="question-title txtClr" oncopy = "return false">{{question.question}} {% if question.required %}<span class="require-star">*</span>{% endif %}</h3>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if question.question_type == "short" %}
+                    <input type="text" name="{{question.id}}" class="form-control short-answer" placeholder = "Ingrese una respuesta breve" {% if question.required %} required {% endif %} value="{{response|get_response:question.pk}}">
+                {% elif question.question_type == "paragraph" %}
+                    <textarea name="{{question.id}}" placeholder="Ingrese una respuesta a desarrollar" class="form-control long-answer textarea-adjust" {% if question.required %} required {% endif %}>{{response|get_response:question.pk}}</textarea>
+                {% elif question.question_type == "multiple choice" %}
+                    {% for choice in question.choices.all %}
+                    <div class="multiple-choice">
+                        {% if response|get_responses:question.pk|is_response:choice.pk %}
+                        <input type="checkbox" name="{{question.id}}" id="{{choice.id}}" {% if question.required %} required {% endif %} value="{{choice.id}}" checked>
+                        {% else %}
+                        <input type="checkbox" name="{{question.id}}" id="{{choice.id}}" {% if question.required %} required {% endif %} value="{{choice.id}}">
+                        {% endif %}
+                        <label for="{{choice.id}}" class="txtClr">{{choice.choice}}</label>
+                    </div>
+                    {% endfor %}
+                {% elif question.question_type == "checkbox" %}
+                    {% for choice in question.choices.all %}
+                    <div class="checkbox">
+                        {% if response|get_response:question.pk|to_int == choice.pk|to_int %}
+                        <input type="radio" name="{{question.id}}" id="{{choice.id}}" {% if question.required %} required {% endif %} value="{{choice.id}}" checked>
+                        {% else %}
+                        <input type="radio" name="{{question.id}}" id="{{choice.id}}" {% if question.required %} required {% endif %} value="{{choice.id}}">
+                        {% endif %}
+                        <label for="{{choice.id}}" class="txtClr">{{choice.choice}}</label>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        <div class="d-flex justify-content-evenly">
+            <button type="submit" class="btn btn-primary" style="width:200px;">Guardar</button>
+            <a type="button" class="btn btn-secondary" href="{% url 'publish_encuesta' form.code %}" style="width:200px;">Publicar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

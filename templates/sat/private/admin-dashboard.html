@@ -1,0 +1,198 @@
+{% extends './base-dashboard.html' %}
+
+{% block encabezado %}
+<div class="container-xl px-4">
+    <div class="page-header-content pt-4">
+        <div class="row align-items-center justify-content-between">
+            
+        </div>
+    </div>
+</div>
+{% endblock%}
+
+{% block contenido %}
+<!-- Main page content-->
+<div class="container-xl px-4 mt-5">
+    <div class="row">
+        <div class="col-xxl-4 col-xl-12 mb-4">
+            <div class="card h-100">
+                <div class="card-body h-100 p-5">
+                    <div class="row align-items-center dflex justify-content-center">
+                        <div class="col-xl-8 col-xxl-12">
+                            <div class="text-center text-xxl-center mb-4 mb-xl-0 mb-xxl-4">
+                                <h1 class="text-primary">Bienvenido/a {{ user.first_name }} {{ user.last_name }}
+                                <br><br>
+                                <h5 class="text-gray-600 mb-0">Espacio de Administración</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <div class="alert alert-success" role="alert">
+                    <p class="text-center">{{message}}</p>
+                </div>
+            {% elif message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">
+                    <p class="text-center">{{message}}</p>
+                </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <p class="text-center">{{message}}</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <!-- Example DataTable for Dashboard Demo-->
+    <div class="card mb-4">
+        <div class="card-header text-center">SOLICITUDES DE MÉDICOS</div>
+        <div class="card-body d-flex justify-content-evenly">
+        {% if usuarios.medicos %}
+            <table id="datatablesSimple">
+                <thead class="text-primary text-center">
+                    <tr>
+                        <th>DNI</th>
+                        <th>Médico</th>
+                        <th>Edad</th>
+                        <th>Especialidad</th>
+                        <th>Matrícula</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tfoot class="text-primary text-center">
+                    <tr>
+                        <th>DNI</th>
+                        <th>Médico</th>
+                        <th>Edad</th>
+                        <th>Especialidad</th>
+                        <th>Matrícula</th>
+                        <th>Acciones</th>
+                    </tr>
+                </tfoot>
+                <tbody class="small mb-1 text-center">
+                    {% for medico in usuarios.medicos %}
+                    <tr>
+                    {% if medico.status == False %}
+                        <td>{{medico.dni}}</td>
+                        <td>{{medico.get_fullname}}</td>
+                        <td>{{medico.get_edad}}</td>
+                        <td>{{medico.especialidad.nombre}}</td>
+                        {% if medico.matricula %}
+                            <td>{{medico.matricula}}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %}
+                        <td>    
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'approve_user_view' medico.user.id  %}" title="Aprobar"><i data-feather="plus-circle"></i></a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'reject_user_view' medico.user.id  %}" title="Rechazar"><i data-feather="x-circle"></i></a>
+                        </td>
+                    {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay solicitudes pendientes de médicos...</p>
+        {% endif %}
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header text-center">SOLICITUDES DE PACIENTES</div>
+        <div class="card-body d-flex justify-content-evenly">
+        {% if usuarios.pacientes %}
+            <table id="datatablesSimple">
+                <thead class="text-primary text-center">
+                    <tr>
+                        <th>DNI</th>
+                        <th>Paciente</th>
+                        <th>Edad</th>
+                        <th>Obra Social</th>
+                        <th>Nº de Obra Social</th>
+                        <th>Asignado a:</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tfoot class="text-primary text-center">
+                    <tr>
+                        <th>DNI</th>
+                        <th>Paciente</th>
+                        <th>Edad</th>
+                        <th>Obra Social</th>
+                        <th>Nº de Obra Social</th>
+                        <th>Asignado a:</th>
+                        <th>Acciones</th>
+                    </tr>
+                </tfoot>
+                <tbody class="small mb-1 text-center">
+                    {% for paciente in usuarios.pacientes %}
+                    <tr>
+                        <td>{{paciente.dni}}</td>
+                        <td>{{paciente.get_fullname}}</td>
+                        <td>{{paciente.get_edad}}</td>
+                        <td>{{paciente.obraSocial.nombre}}</td>
+                        {% if paciente.numeroObraSocial %}
+                            <td>{{paciente.numeroObraSocial}}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %}
+                        <td>
+                        {% if paciente.tratamiento_set.all %}
+                            {% for tratamiento in paciente.tratamiento_set.all %}
+                                {% if tratamiento.medico %} 
+                                    {{ tratamiento.medico }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                                ---       
+                        {% endif %}
+                        </td>
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'approve_user_view' paciente.user.id  %}" title="Aprobar"><i data-feather="plus-circle"></i></a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'reject_user_view' paciente.user.id  %}" title="Rechazar"><i data-feather="x-circle"></i></a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" type="button" data-bs-toggle="modal" data-bs-target="#createGroupModal{{ paciente.id }}" title="Asignar Médico"><i data-feather="arrow-down-circle"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay solicitudes pendientes de pacientes...</p>
+        {% endif %}
+    </div>
+</div>
+<!-- Create group modal-->
+{% for paciente in usuarios.pacientes %}
+<div class="modal fade" id="createGroupModal{{ paciente.id }}" tabindex="-1" role="dialog" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGroupModalLabel">Asignar Médico</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'add_tratamiento' paciente.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label class="small mb-1" for="medico">Médico</label>
+                    <select class="form-select" name="id_medico" aria-label="Default select example">
+                        <option selected disabled>-- Seleccione --</option>
+                        {% for medico in usuarios.medicos %}
+                        {% if medico.status == True %}
+                        <option value="{{medico.id}}">{{medico.get_fullname}} - {{medico.especialidad.nombre}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer dflex justify-content-evenly">
+                    <button class="btn btn-primary-soft text-primary" type="submit">Guardar</button>
+                    <button class="btn btn-danger-soft text-danger" type="button" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock%}

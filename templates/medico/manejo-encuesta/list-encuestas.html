@@ -1,0 +1,168 @@
+{% extends '../../sat/private/base-dashboard.html' %}
+
+{% load static %}
+{% block script %}
+    <script src = "{% static 'encuesta/index/index.js' %}"></script>
+    <script src="{% static 'encuesta/lib/cookie.min.js' %}" defer></script>
+{% endblock %}
+
+{% block encabezado %}
+<div class="container-fluid px-4">
+    <div class="page-header-content">
+        <div class="row align-items-center justify-content-between pt-3">
+            <div class="col-auto mt-2 mb-3">
+                <h1 class="page-header-title">
+                    <div class="page-header-icon"><i data-feather="list"></i></div>
+                    {% if user.groups.first.name == 'PACIENTE' %}
+                    Mis Encuestas
+                    {% else %}
+                    Lista de Encuestas
+                    {% endif %}
+                </h1>
+            </div>
+            {% if not user.groups.first.name == 'PACIENTE' %}
+            <div class="col-12 col-xl-auto mb-3">
+                <div>
+                    <button class="btn btn-primary btn-sm ms-2" alt = "Blank form" id="create-blank-form">
+                    <span class="form-template-label">Agregar Encuesta</span>
+                
+                    <button class="btn btn-info btn-sm ms-2" alt = "Contact Information" id="create-contact-form">
+                    <span class="form-template-label">Información de Contacto</span>
+                
+                    <button class="btn btn-info btn-sm ms-2" alt = "Customer Feedback" id="create-customer-feedback">
+                    <span class="form-template-label">Feedback del Paciente</span>
+                
+                    <button class="btn btn-info btn-sm ms-2" alt = "Event Registration" id="create-event-registration">
+                    <span class="form-template-label">Registro de Evento</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block contenido %}
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% elif message.tags == 'error' %}
+            <div class="alert alert-danger" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <p class="text-center">{{message}}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<div class="container-fluid px-4">
+    <div class="card">
+        <div class="card-body d-flex justify-content-evenly">
+        {% if forms %}
+            <table id="datatablesSimple" class="px-0">
+                <thead class="text-primary text-center">
+                    <tr>
+                        <th>Título</th>
+                        <th>Última Modificación</th>
+                        <th>Estado</th>
+                        <th>Creada Por</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center small">
+                    {% for i in forms %}
+                    <tr>
+                        <td class="pe-3">{{i.title}}</td>
+                        <td class="form-list-timestamp">
+                            {% if i.createdAt == i.updatedAt %}
+                                {{i.createdAt}}
+                            {% else %}
+                                {{i.updatedAt}}
+                            {% endif %}
+                        </td>
+                        {% if not user.groups.first.name == 'PACIENTE' %}
+                            {% if i.status == 'b' %}
+                            <td class="badge bg-primary text-white rounded-pill me-5">Borrador
+                            {% else %}
+                            <td class="badge bg-secondary text-white rounded-pill me-5">Publicada
+                            {% endif %}
+                        </td>
+                        {% else %}
+                            {% if i.pacienterealizaencuesta_set.all %}
+                                {% for paciente_realiza_encuesta in i.pacienterealizaencuesta_set.all %}
+                                    {% if paciente_realiza_encuesta.estado == 'b' %} 
+                                    <td class="badge bg-warning text-white rounded-pill me-5">En Proceso
+                                    {% else %} 
+                                    <td class="badge bg-success text-white rounded-pill me-5">Envíada
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <td class="badge bg-danger text-white rounded-pill me-5">Por Hacer
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        <td>
+                            {% if i.medicocreaencuesta_set.first %}
+                                {{ i.medicocreaencuesta_set.first }}
+                            {% else %}
+                                ADMIN
+                            {% endif %}
+                        </td>
+                        {% if user.groups.first.name == 'PACIENTE' %}
+                        <td>
+                            {% if i.pacienterealizaencuesta_set.all %}
+                                {% for paciente_realiza_encuesta in i.pacienterealizaencuesta_set.all %}
+                                    {% if paciente_realiza_encuesta.estado == 'p' %}
+                                        {% for r in responses %}
+                                            {% if r.response_to_id == i.id %}
+                                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'response' i.code r.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for r in responses %}
+                                            {% if r.response_to_id == i.id %}
+                                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'edit_response' i.code r.response_code %}" title="Editar Respuestas"><i data-feather="edit"></i></a>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'publish_encuesta' i.code %}" title="Publicar"><i data-feather="send"></i></a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'complete_encuesta' i.code %}" title="Completar"><i data-feather="upload"></i></a>
+                            {% endif %}
+                        {% else %}
+                        <td class="d-flex justify-content-end">
+                            {% if i.status == 'b' %}
+                                {% if user.is_staff and i.medicocreaencuesta_set.all %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'view_encuesta' i.code %}" title="Ver"><i data-feather="eye"></i></a>
+                                {% else %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'edit_encuesta' i.code %}" title="Editar"><i data-feather="edit"></i></a>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'publish_encuesta' i.code %}" title="Publicar"><i data-feather="send"></i></a>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'delete_form' i.code %}" title="Eliminar"><i data-feather="trash-2"></i></a>
+                                {% endif %}
+                            {% else %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'view_encuesta' i.code %}" title="Ver"><i data-feather="eye"></i></a>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'responses' i.code %}" title="Ver Respuestas"><i data-feather="bar-chart-2"></i></a>
+                                {% if not user.is_staff and i.medicocreaencuesta_set.all or user.is_staff and not i.medicocreaencuesta_set.all %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me" href="{% url 'unpublish_encuesta' i.code %}" title="Pasar a Borrador"><i data-feather="edit-2"></i></a>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-1" href="{% url 'delete_form' i.code %}" title="Eliminar"><i data-feather="trash-2"></i></a>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+        <p>No hay encuestas registradas...</p>
+        {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
