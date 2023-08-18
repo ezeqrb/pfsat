@@ -40,15 +40,15 @@ jobs:
         password: ${{ env.DOCKERHUB_TOKEN }}
     - name: Set permissions for private key
       run: |
-        echo "${{ env.AWS_PRIVATE_KEY }}" > pfdev.pem
-        chmod 600 pfdev.pem
+        echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
+        chmod 600 key.pem
     - name: Pull Docker image
       run: |
-        ssh -o StrictHostKeyChecking=no -i pfdev.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker pull ezeqrb/pfsat:latest'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker pull ezeqrb/pfsat:latest'
     - name: Stop running container
       run: |
-        ssh -o StrictHostKeyChecking=no -i pfdev.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker stop pfsat || true'
-        ssh -o StrictHostKeyChecking=no -i pfdev.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker rm pfsat || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker stop pfsat || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker rm pfsat || true'
     - name: Run new container
       run: |
-        ssh -o StrictHostKeyChecking=no -i pfdev.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker run -d --name pfsat -p 80:8000 ezeqrb/pfsat:latest'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@ec2-15-228-59-220.sa-east-1.compute.amazonaws.com 'sudo docker run -d --name pfsat -p 80:8000 ezeqrb/pfsat:latest'
