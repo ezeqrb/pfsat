@@ -3,10 +3,10 @@ FROM python:3.9
 
 #ENV
 ENV SECRET_KEY os.environ.get('DJANGO_SECRET_KEY')
-ENV DATABASE_NAME 'pfsatdb'
+ENV DATABASE_NAME 'postgres'
 ENV DATABASE_USER 'pfsatuser'
 ENV DATABASE_PASSWORD 'pfsatpassword'
-ENV DATABASE_HOST 'pfsatdb.cyx88m3smqeb.sa-east-1.rds.amazonaws.com'
+ENV DATABASE_HOST 'pfsat.cyx88m3smqeb.sa-east-1.rds.amazonaws.com'
 ENV DATABASE_PORT 5432
 
 
