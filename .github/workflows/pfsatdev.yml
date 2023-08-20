@@ -44,11 +44,11 @@ jobs:
         chmod 600 pfsat.pem
     - name: Pull Docker image
       run: |
-        ssh -o StrictHostKeyChecking=no -i pfsat.pem ec2-user@ec2-15-229-11-120.sa-east-1.compute.amazonaws.com 'sudo docker pull ${{ env.DOCKERHUB_USERNAME }}/pfsatdev:latest'
+        ssh -o StrictHostKeyChecking=no -i pfsat.pem ec2-user@ec2-15-228-73-227.sa-east-1.compute.amazonaws.com 'sudo docker pull ${{ env.DOCKERHUB_USERNAME }}/pfsatdev:latest'
     - name: Stop running container
       run: |
-        ssh -o StrictHostKeyChecking=no -i pfsat.pem ec2-user@ec2-15-229-11-120.sa-east-1.compute.amazonaws.com 'sudo docker stop pfsatdev || true'
-        ssh -o StrictHostKeyChecking=no -i pfsat.pem ec2-user@ec2-15-229-11-120.sa-east-1.compute.amazonaws.com 'sudo docker rm pfsatdev || true'
+        ssh -o StrictHostKeyChecking=no -i pfsat.pem ec2-user@ec2-15-228-73-227.sa-east-1.compute.amazonaws.com 'sudo docker stop pfsatdev || true'
+        ssh -o StrictHostKeyChecking=no -i pfsat.pem ec2-user@ec2-15-228-73-227.sa-east-1.compute.amazonaws.com 'sudo docker rm pfsatdev || true'
     - name: Run new container
       run: |
-        ssh -o StrictHostKeyChecking=no -i pfsat.pem ec2-user@ec2-15-229-11-120.sa-east-1.compute.amazonaws.com 'sudo docker run -d --name pfsatdev -p 80:8000 ${{ env.DOCKERHUB_USERNAME }}/pfsatdev:latest'
+        ssh -o StrictHostKeyChecking=no -i pfsat.pem ec2-user@ec2-15-228-73-227.sa-east-1.compute.amazonaws.com 'sudo docker run -d --name pfsatdev -p 80:8000 ${{ env.DOCKERHUB_USERNAME }}/pfsatdev:latest'
