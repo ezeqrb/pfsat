@@ -9,12 +9,3 @@ services:
       - "80:8000"
     environment:
       ENV: production
-      
-  appDev:
-    image: ezeqrb/psatdev:latest
-    container_name: pfsatdev
-    restart: always
-    ports:
-      -"80:8000"
-    environment:
-    ENV: development
