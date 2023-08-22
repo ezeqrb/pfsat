@@ -58,17 +58,16 @@
                                             <div class="mb-3">
                                                 <label class="fs-6 mb-1 fw-bold" for="">Usuario</label>
                                                 <input class="form-control" type="text" id="{{ form.username.auto_id }}" name="{{ form.username.name }}" 
-                                                placeholder="nombre.apellido" value="{{ form.username.value | default:'' }}" />
+                                                placeholder="Ingrese el nombre de usuario" value="{{ form.username.value|default:'' }}" />
                                             </div>
-                                            <p class="small mb-3 lh-sm fw-light text-center">Su nombre de usuario es: nombre.apellido<br>(sin espacios ni caracteres especiales)</p>
                                             <!-- Form Group (password)-->
                                             <div class="mb-3">
                                                 <label class="fs-6 mb-1 fw-bold" for="">Contraseña</label>
                                                 <input class="form-control" type="password" id="{{ form.password.auto_id }}" name="{{ form.password.name }}" 
-                                                placeholder="Ingrese la contraseña" value="{{ form.password.value | default:'' }}" />
+                                                placeholder="Ingrese la contraseña" value="{{ form.password.value|default:'' }}" />
                                             </div>
                                             <div class="mt-2 text-center">
-                                                <a href="#" class="small text-decoration-none">¿Olvidó su nombre de usuario o contraseña?</a>
+                                                <a href="{% url 'password_reset' %}" class="small text-decoration-none">¿Olvidó su nombre de usuario o contraseña?</a>
                                                 <br><br>
                                                 <div class="d-flex justify-content-evenly">
                                                     <button type="submit" class="btn btn-primary">Acceder</button>

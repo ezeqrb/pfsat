@@ -8,6 +8,8 @@ ENV DATABASE_USER 'pfsatuser'
 ENV DATABASE_PASSWORD 'pfsatpassword'
 ENV DATABASE_HOST 'pfsat.cyx88m3smqeb.sa-east-1.rds.amazonaws.com'
 ENV DATABASE_PORT 5432
+ENV EMAIL_USER 'proyectofinalsat@gmail.com'
+ENV EMAIL_PASSWORD 'vejlablgiwzskngh'
 
 
 # Establece el directorio de trabajo dentro del contenedor

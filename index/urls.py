@@ -13,6 +13,7 @@ urlpatterns = [
     path('form/<str:code>/viewform', views.complete_encuesta, name="complete_encuesta"),
     path('form/<str:code>/publish', views.publish_encuesta, name="publish_encuesta"),
     path('form/<str:code>/unpublish', views.unpublish_encuesta, name="unpublish_encuesta"),
+    path('form/<str:code>/reassign', views.reassign_encuesta, name="reassign_encuesta"),
     #path('form/<str:code>/viewform', views.view_encuesta, name="view_encuesta"),
     path('form/create/contact', views.contact_form_template, name="contact_form_template"),
     path('form/create/feedback', views.customer_feedback_template, name="customer_feedback_template"),

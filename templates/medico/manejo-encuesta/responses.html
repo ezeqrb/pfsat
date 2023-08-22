@@ -5,7 +5,7 @@
 {% load generate_color %}
 {% load count %}
 {% block script %}
-    <script src="{% static 'encuesta/index/responses-2.js' %}" defer></script>
+    <script src="{% static 'encuesta/index/responses.js' %}" defer></script>
     <script src="{% static 'encuesta/lib/cookie.min.js' %}"></script>
 {% endblock %}
 
@@ -81,10 +81,10 @@
                     </tr>
                 </thead>
                 <tbody class="text-center small">
-                    {% for i in responses %}
+                {% if form.authenticated_responder %}
+                    {% for encuesta in form.pacienterealizaencuesta_set.all %}
                     <tr>
-                        {% if form.authenticated_responder %}
-                            {% for encuesta in form.pacienterealizaencuesta_set.all %}
+                        {% if encuesta.estado == 'p' %}
                             <td>{{ encuesta.paciente.get_fullname }}</td>
                             <td class="form-list-timestamp">
                                 {% if encuesta.fechaCreacion == encuesta.fechaModificacion %}
@@ -93,17 +93,29 @@
                                     {{ encuesta.fechaModificacion }}
                                 {% endif %}
                             </td>
+                            <td>
+                            {% for i in responses %}
+                                {% if i.responder_email == encuesta.paciente.user.email %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'response' form.code i.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
+                                {% endif %}
                             {% endfor %}
-                        {% elif form.collect_email %}
-                            <td>{{ i.responder_email }}</td>
-                        {% else %}
-                            <td>{{ i.responder_ip }}</td>
+                            </td> 
                         {% endif %}
-                        <td>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'response' form.code i.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
-                        </td>
                     </tr>
                     {% endfor %}
+                {% else %}
+                {% for i in responses %}
+                    {% if form.collect_email %}
+                        <td>{{ i.responder_email }}</td>
+                    {% else %}
+                        <td>{{ i.responder_ip }}</td>
+                    {% endif %}
+                    <td>
+                        <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'response' form.code i.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
+                    </td>
+                {% endfor %}
+                {% endif %}
+                </tr>
                 </tbody>
             </table>
         </div>

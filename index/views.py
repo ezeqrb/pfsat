@@ -17,7 +17,6 @@ def list_encuestas(request):
             forms = Form.objects.all().order_by("-updatedAt")
         elif es_medico(request.user):
             medico = Medico.objects.get(user_id=request.user.id)
-            #forms = Form.objects.filter(medicocreaencuesta__medico=medico.id).order_by("-updatedAt")
             forms_all = Form.objects.all().order_by("-updatedAt")
             forms_medicos = MedicoCreaEncuesta.objects.all()
             forms_otros_medicos = [form.encuesta_id for form in forms_medicos if form.medico.id != medico.id] #me quedo con los ids de los forms creados por otros médicos
@@ -25,12 +24,17 @@ def list_encuestas(request):
         else: #es paciente
             paciente = Paciente.objects.get(user_id=request.user.id)
             forms = Form.objects.filter(medicocreaencuesta__medico__pacientes=paciente.id,status='p').order_by("-updatedAt")            
-
             responses = []
+            encuestas_respondidas = []
             for form in forms:
-                response = Responses.objects.filter(response_to=form.id, responder_email=request.user.email)
-                responses.extend(response)
-            return render(request, "medico/manejo-encuesta/list-encuestas.html", {"forms": forms,"responses": responses})
+                responses.extend(Responses.objects.filter(response_to=form.id, responder_email=request.user.email))
+                encuesta_respondida = PacienteRealizaEncuesta.objects.filter(paciente_id=paciente.id,encuesta_id=form.id)
+                if encuesta_respondida.count() > 0:
+                    for encuesta in encuesta_respondida: #el paciente puede responder una encuesta más de una vez
+                        encuestas_respondidas.append(encuesta)
+                else:
+                    encuestas_respondidas.append(form.id)
+            return render(request, "medico/manejo-encuesta/list-encuestas.html", {"forms": forms,"responses": responses,'encuestas_respondidas':encuestas_respondidas})
         return render(request, "medico/manejo-encuesta/list-encuestas.html", {"forms": forms})
     else:
         messages.error(request,'Permiso denegado: Debe iniciar sesión!')
@@ -75,18 +79,15 @@ def add_encuesta(request):
 def edit_encuesta(request, code):
     if request.user.is_staff or es_medico(request.user):
         formInfo = Form.objects.filter(code = code)
-        # chequeo si existe
         if formInfo.count() == 0:
             return render(request,'error/404.html')
         else: formInfo = formInfo[0]
-        #return render(request, "index/form.html", {"code": code,"form": formInfo})
         return render(request, "medico/manejo-encuesta/edit_encuesta.html", {"code": code,"form": formInfo})
     else:
         return render(request,"error/403.html")
     
 def edit_title(request, code):
     formInfo = Form.objects.filter(code = code)
-    #Checking if form exists
     if formInfo.count() == 0:
         return HttpResponseRedirect(reverse("404"))
     else: formInfo = formInfo[0]
@@ -101,9 +102,7 @@ def edit_title(request, code):
         return JsonResponse({"message": "Success", "title": formInfo.title})
 
 def edit_description(request, code):
-
     formInfo = Form.objects.filter(code = code)
-    #Checking if form exists
     if formInfo.count() == 0:
         return HttpResponseRedirect(reverse("404"))
     else: formInfo = formInfo[0]
@@ -115,9 +114,7 @@ def edit_description(request, code):
         return JsonResponse({"message": "Success", "description": formInfo.description})
 
 def edit_bg_color(request, code):
-
     formInfo = Form.objects.filter(code = code)
-    #Checking if form exists
     if formInfo.count() == 0:
         return HttpResponseRedirect(reverse("404"))
     else: formInfo = formInfo[0]
@@ -129,9 +126,7 @@ def edit_bg_color(request, code):
         return JsonResponse({"message": "Success", "bgColor": formInfo.background_color})
 
 def edit_text_color(request, code):
-
     formInfo = Form.objects.filter(code = code)
-    #Checking if form exists
     if formInfo.count() == 0:
         return HttpResponseRedirect(reverse("404"))
     else: formInfo = formInfo[0]
@@ -163,7 +158,7 @@ def delete_form(request, code):
     formInfo = Form.objects.filter(code = code)
     # chequeo que existe
     if formInfo.count() == 0:
-        return HttpResponseRedirect(reverse("404"))
+        return render(request,"error/404.html")
     else: 
         formInfo = formInfo[0]
     
@@ -181,11 +176,9 @@ def delete_form(request, code):
     return redirect('list_encuestas')
         
 def edit_question(request, code):
-
     formInfo = Form.objects.filter(code = code)
-    #Checking if form exists
     if formInfo.count() == 0:
-        return HttpResponseRedirect(reverse('404'))
+        return render(request,"error/404.html")
     else: formInfo = formInfo[0]
 
     if request.method == "POST":
@@ -204,13 +197,10 @@ def edit_question(request, code):
         return JsonResponse({'message': "Success"})
 
 def edit_choice(request, code):
-
     formInfo = Form.objects.filter(code = code)
-    #Checking if form exists
     if formInfo.count() == 0:
-        return HttpResponseRedirect(reverse('404'))
+        return render(request,"error/404.html")
     else: formInfo = formInfo[0]
-
 
     if request.method == "POST":
         data = json.loads(request.body)
@@ -225,11 +215,9 @@ def edit_choice(request, code):
         return JsonResponse({'message': "Success"})
 
 def add_choice(request, code):
-
     formInfo = Form.objects.filter(code = code)
-    #Checking if form exists
     if formInfo.count() == 0:
-        return HttpResponseRedirect(reverse('404'))
+        return render(request,"error/404.html")
     else: formInfo = formInfo[0]
 
     if request.method == "POST":
@@ -241,18 +229,16 @@ def add_choice(request, code):
         return JsonResponse({"message": "Success", "choice": choice.choice, "id": choice.id})
 
 def remove_choice(request, code):
-
     formInfo = Form.objects.filter(code = code)
-    #Checking if form exists
     if formInfo.count() == 0:
-        return HttpResponseRedirect(reverse('404'))
+        return render(request,"error/404.html")
     else: formInfo = formInfo[0]
 
     if request.method == "POST":
         data = json.loads(request.body)
         choice = Choices.objects.filter(pk = data["id"])
         if choice.count() == 0:
-            return HttpResponseRedirect(reverse("404"))
+            return render(request,"error/404.html")
         else: choice = choice[0]
         choice.delete()
         return JsonResponse({"message": "Success"})
@@ -324,7 +310,6 @@ def repeat_question(request, code, question):
 
 def delete_question(request, code, question):
     formInfo = Form.objects.filter(code = code)
-
     if formInfo.count() == 0:
         return render(request,'error/404.html')
     else: formInfo = formInfo[0]
@@ -376,6 +361,23 @@ def unpublish_encuesta(request,code):
     else:
         messages.error(request,'Permiso denegado: Debe iniciar sesión!')
         return redirect('index')
+
+def reassign_encuesta(request,code):
+    if es_medico(request.user):
+        formInfo = Form.objects.filter(code = code)
+        if formInfo.count() == 0:
+            return render(request,'error/404.html')
+        else: formInfo = formInfo[0]
+
+        medico = Medico.objects.get(user_id=request.user.id)
+        mis_pacientes = Paciente.objects.filter(tratamiento__medico=medico.id,status=True,baja=False).distinct()
+        for paciente in mis_pacientes:
+            nv_encuesta = PacienteRealizaEncuesta.objects.create(encuesta_id=formInfo.id,paciente_id=paciente.id,estado='r')
+        messages.success(request,'Encuesta reasignada con éxito!')
+        return redirect('list_encuestas')
+    else:
+        messages.error(request,'Permiso denegado!')
+        return redirect('afterlogin')
 
 def score(request, code):
     formInfo = Form.objects.filter(code = code)
@@ -483,6 +485,10 @@ def complete_encuesta(request, code):
         if es_paciente(request.user):
             paciente = Paciente.objects.get(user_id=request.user.id)
             nv_encuesta = PacienteRealizaEncuesta.objects.create(paciente_id=paciente.id,encuesta_id=formInfo.id)
+    else:
+        if formInfo.authenticated_responder:
+            messages.error(request,"Permiso denegado: Debe iniciar sesión!")
+            return redirect('index')
     return render(request, "medico/manejo-encuesta/complete_encuesta.html", {"form": formInfo})
 
 def get_client_ip(request):
@@ -534,7 +540,7 @@ def responses(request, code):
     formInfo = Form.objects.filter(code = code)
 
     if formInfo.count() == 0:
-        return HttpResponseRedirect(reverse('404'))
+        return render(request,'error/404.html')
     else: formInfo = formInfo[0]
 
     try:
@@ -783,11 +789,12 @@ def delete_responses(request, code):
                 for i in response.response.all():
                     i.delete()
                 response.delete()
-            # elimino las encuestas realizadas por los pacientes
-            forms_pacientes = PacienteRealizaEncuesta.objects.filter(encuesta_id = formInfo.id)
+            # elimino las encuestas publicadas por los pacientes
+            forms_pacientes = PacienteRealizaEncuesta.objects.filter(encuesta_id = formInfo.id,estado='p')
             for form_paciente in forms_pacientes:
                 form_paciente.delete()
             messages.success(request,'Respuestas eliminadas con éxito!')
+            return redirect('list_encuestas')
         else: messages.info(request,'Todavía no se registraron respuestas!')
     return redirect('reponses')
 

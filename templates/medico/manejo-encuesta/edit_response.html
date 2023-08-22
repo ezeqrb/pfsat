@@ -47,6 +47,18 @@
                     <div class="form-description txtClr">{{form.description|linebreaksbr}}</div>
                 </div>
             </div>
+            {% if form.collect_email %}
+                {% if not user.is_authenticated %}
+                <div class="margin-top-bottom box question-box">
+                    <div class="card px-3 py-3 my-4">
+                        <h5>Correo electrónico</h5>
+                        <input type="email" name="email-address" class="short-answer form-control" placeholder="Ingrese su correo electrónico" required value="{{response.responder_email}}">
+                    </div>
+                </div>
+                {% else %}
+                <input type="email" name="email-address" class="short-answer form-control" placeholder="Ingrese su correo electrónico" required value="{{user.email}}" hidden>
+                {% endif %}
+            {% endif %}
         </div>
         {% for question in form.questions.all %}
         <div class="card mb-3">
@@ -90,7 +102,6 @@
         {% endfor %}
         <div class="d-flex justify-content-evenly">
             <button type="submit" class="btn btn-primary" style="width:200px;">Guardar</button>
-            <a type="button" class="btn btn-secondary" href="{% url 'publish_encuesta' form.code %}" style="width:200px;">Publicar</a>
         </div>
     </form>
 </div>
