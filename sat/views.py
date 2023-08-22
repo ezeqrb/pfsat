@@ -92,8 +92,8 @@ def mi_perfil_view(request):
 def admin_dashboard_view(request):
     if request.user.is_staff:
         pacientes_pendientes = Paciente.objects.filter(status=False,baja=False)
-        medicos_pendiente = Medico.objects.filter(status=False)
-        usuarios = {'pacientes':pacientes_pendientes,'medicos':medicos_pendiente}
+        medicos_pendientes = Medico.objects.filter(status=False)
+        usuarios = {'pacientes':pacientes_pendientes,'medicos':medicos_pendientes}
         return render(request,'sat/private/admin-dashboard.html',{'usuarios':usuarios})
     else:
         messages.error(request,'Permiso denegado!')
