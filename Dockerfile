@@ -11,7 +11,6 @@ ENV DATABASE_PORT 5432
 ENV EMAIL_USER 'proyectofinalsat@gmail.com'
 ENV EMAIL_PASSWORD 'vejlablgiwzskngh'
 
-
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 

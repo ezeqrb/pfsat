@@ -80,7 +80,11 @@
                         <td>{{medico.dni}}</td>
                         <td>{{medico.get_fullname}}</td>
                         <td>{{medico.get_edad}}</td>
-                        <td>{{medico.especialidad.nombre}}</td>
+                        {% if medico.especialidad %}
+                            <td>{{medico.especialidad.nombre}}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %} 
                         {% if medico.matricula %}
                             <td>{{medico.matricula}}</td>
                         {% else %}

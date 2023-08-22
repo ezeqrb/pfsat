@@ -80,7 +80,11 @@
                         <td>{{medico.dni}}</td>
                         <td>{{medico.get_fullname}}</td>
                         <td>{{medico.get_edad}}</td>
-                        <td>{{medico.especialidad.nombre}}</td>
+                        {% if medico.especialidad %}
+                            <td>{{medico.especialidad.nombre}}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %} 
                         {% if medico.matricula %}
                             <td>{{medico.matricula}}</td>
                         {% else %}
@@ -133,7 +137,11 @@
                         <td>{{paciente.dni}}</td>
                         <td>{{paciente.get_fullname}}</td>
                         <td>{{paciente.get_edad}}</td>
-                        <td>{{paciente.obraSocial.nombre}}</td>
+                        {% if paciente.obraSocial %}
+                            <td>{{paciente.obraSocial.nombre}}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %}  
                         {% if paciente.numeroObraSocial %}
                             <td>{{paciente.numeroObraSocial}}</td>
                         {% else %}
