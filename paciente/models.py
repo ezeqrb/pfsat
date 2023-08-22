@@ -61,7 +61,7 @@ class ObraSocial(models.Model):
         return self.nombre
 
 class Paciente(Persona):
-    obraSocial = models.ForeignKey(ObraSocial,on_delete=models.CASCADE,default='A completar',verbose_name='Obra Social')
+    obraSocial = models.ForeignKey(ObraSocial,on_delete=models.CASCADE,null=True,blank=True,verbose_name='Obra Social')
     numeroObraSocial = models.CharField(max_length=30,verbose_name='Nº de obra social',null=True,blank=True)
     baja = models.BooleanField(verbose_name='Baja',default=False)
     descripcion = models.TextField(max_length=250,verbose_name="Descripción",null=True,blank=True)
@@ -86,6 +86,7 @@ class Paciente(Persona):
 class PacienteRealizaEncuesta(models.Model):
     ESTADOS = [
         ('','--- Seleccione ---'),
+        ('r','reasignada'),
         ('b','borrador'),
         ('p','publicada')
     ]

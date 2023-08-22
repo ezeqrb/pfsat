@@ -37,19 +37,29 @@
         <span id="text-color" style="display: none;">{{form.text_color}}</span>
         {% csrf_token %}
         <div class="margin-top-bottom box question-box">
-            <div class="form-title-box">
-                <h1 class="form-title txtClr">{{form.title}}</h1>
-                <p class="required-info">(*) Campos Obligatorios</p>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="form-title-box">
+                        <h1 class="form-title txtClr">{{form.title}}</h1>
+                        <p class="required-info text-primary">(*) Campos Obligatorios</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-description txtClr">{{form.description|linebreaksbr}}</div>
+                </div>
             </div>
-            <div class="form-description txtClr">{{form.description|linebreaksbr}}</div>
         </div>
         {% if form.collect_email %}
-        <div class="margin-top-bottom box question-box">
-            <div class="card px-3 py-3 my-4">
-                <h5>Correo electrónico</h5>
-                <input type="email" name="email-address" class="short-answer form-control" placeholder="Ingrese su correo electrónico" required value="{{response.responder_email}}">
+            {% if not user.is_authenticated %}
+            <div class="margin-top-bottom box question-box">
+                <div class="card px-3 py-3 my-4">
+                    <h5>Correo electrónico</h5>
+                    <input type="email" name="email-address" class="short-answer form-control" placeholder="Ingrese su correo electrónico" required value="{{response.responder_email}}">
+                </div>
             </div>
-        </div>
+            {% else %}
+            <input type="email" name="email-address" class="short-answer form-control" placeholder="Ingrese su correo electrónico" required value="{{user.email}}" hidden>
+            {% endif %}
         {% endif %}
         {% for question in form.questions.all %}
         <div class="margin-top-bottom box question-box">
@@ -84,7 +94,6 @@
         <div class="d-flex justify-content-evenly">
             {% if request.user.is_authenticated %}
             <button type="submit" class="btn btn-primary" style="width:200px;">Guardar</button>
-            <a type="button" class="btn btn-secondary" href="{% url 'publish_encuesta' form.code %}" style="width:200px;">Publicar</a>
             {% else %}
             <button type="submit" class="btn btn-primary" style="width:250px;">Publicar</button>
             {% endif %}

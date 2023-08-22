@@ -32,10 +32,10 @@
             <ul class="navbar-nav align-items-center ms-auto">
                 <!-- User Dropdown-->
                 <li class="nav-item dropdown no-caret dropdown-user me-3 me-lg-4">
-                    <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="img-fluid" src="../../../../static/assets-dash/img/illustrations/profiles/profile-1.png" /></a>
+                    <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="img-fluid" src="{% static '/img/foto-perfil-default.jpg' %}" /></a>
                     <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
                         <h6 class="dropdown-header d-flex align-items-center">
-                            <img class="dropdown-user-img" src="../../../../static/assets-dash/img/illustrations/profiles/profile-1.png" />
+                            <img class="dropdown-user-img" src="{% static '/img/foto-perfil-default.jpg' %}" />
                             <div class="dropdown-user-details">
                                 <div class="dropdown-user-details-name">{{ user.username }}</div>
                                 <div class="dropdown-user-details-email">{{ user.email }}</div>
@@ -67,6 +67,7 @@
                         <div class="text-center text-xxl-center mb-4 mb-xl-0 mb-xxl-4">
                             <h1 class="text-primary">Bienvenido/a {{ user.first_name }} {{ user.last_name }}!</h1>
                             <p class="text-gray-600 mb-0">Su solicitud aún no ha sido aceptada! Vuelva a ingresar más tarde ... </p>
+                            <a class="btn btn-primary mt-3" href="{% url 'logout' %}">Cerrar sesión</a>
                         </div>
                         {% if messages %}
                             {% for message in messages %}

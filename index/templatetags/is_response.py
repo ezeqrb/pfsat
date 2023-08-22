@@ -7,7 +7,8 @@ def get_responses(responses, pk):
 
 @register.filter
 def is_response(responses, pk):
-    for i in responses:
-        if int(i.answer) == int(pk):
+    for response in responses:
+        if int(response.answer_to.pk) == int(pk):
+            print(response.answer_to.pk)
             return True
     return False

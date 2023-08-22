@@ -13,7 +13,7 @@ class Especialidad(models.Model):
         return self.nombre
 
 class Medico(Persona):
-    especialidad = models.ForeignKey(Especialidad,on_delete=models.CASCADE,default="A completar")
+    especialidad = models.ForeignKey(Especialidad,on_delete=models.CASCADE,null=True,blank=True)
     matricula = models.CharField(max_length=15,verbose_name='Matrícula',null=True,blank=True)
     pacientes = models.ManyToManyField(Paciente,through='Tratamiento') 
     encuestas = models.ManyToManyField(Form,through='MedicoCreaEncuesta') 

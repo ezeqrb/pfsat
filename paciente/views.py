@@ -2,14 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from .forms import UserForm, UserFormView, PacienteFormSignUp, PacienteFormAdd, PacienteFormEdit, ObraSocialForm
 from .models import Paciente, ObraSocial
 from medico.models import Medico,Tratamiento
 from sat.views import es_paciente,es_medico
 from unidecode import unidecode
-import re
 
 def paciente_login_view(request):
     ''' Autenticación '''
@@ -20,6 +19,7 @@ def paciente_login_view(request):
         if user is not None:
             if es_paciente(user):
                 form = login(request, user)
+                print(form)
                 nxt = request.GET.get("next",None)
                 if nxt is None:
                     return redirect('afterlogin')
@@ -41,36 +41,31 @@ def paciente_signup_view(request):
         pacienteform = PacienteFormSignUp(request.POST)
         if userform.is_valid() and pacienteform.is_valid():
             # Usuario
-            try:
-                userform.first_name = request.POST['first_name'].capitalize()
-                userform.last_name = request.POST['last_name'].capitalize()
-                nombre_usuario = request.POST['first_name'].lower() + "." + request.POST['last_name'].lower()
-                nombre_usuario = re.sub(r'\s+', '', nombre_usuario) #nombre sin espacios
-                userform.username = unidecode(nombre_usuario) #nombre sin caracteres especiales
-                userform.set_password(userform.password)
-                userform.save()
-            except:
-                messages.info(request,'Usuario existente!')
+            if User.objects.filter(email=request.POST['email']):
+                messages.error(request,'Correo electrónico inválido: ya fue utilizado en otra cuenta!')
                 return redirect('paciente-signup')
+            user = userform.save(commit=False)
+            user.first_name = request.POST['first_name'].capitalize()
+            user.last_name = request.POST['last_name'].capitalize()
+            #nombre_usuario = request.POST['first_name'].lower() + "." + request.POST['last_name'].lower()
+            #nombre_usuario = re.sub(r'\s+', '', nombre_usuario) #nombre sin espacios
+            #user.username = unidecode(nombre_usuario) #nombre sin caracteres especiales
+            user.set_password(request.POST['password1'])
+            user.save()
             # Paciente
             paciente = pacienteform.save(commit=False)
-            paciente.user = userform
-            obra_social, created = ObraSocial.objects.get_or_create(nombre='A completar')
-            paciente.obraSocial = obra_social
+            paciente.user = user
             paciente.save()
             # Grupo de usuario
             my_paciente_group = Group.objects.get_or_create(name='PACIENTE')
-            my_paciente_group[0].user_set.add(userform)
+            my_paciente_group[0].user_set.add(user)
             # Tratamiento: funciona en el caso de que el médico exista en la bbdd!
             try:
                 user_mp = User.objects.get(username='gustavo.giunta')
                 medico_mp = Medico.objects.get(user_id=user_mp.id)
-            except User.DoesNotExist:
-                return render(request,'error/404.html')
-            except Medico.DoesNotExist:
-                return render(request,'error/404.html')
-            nv_tratamiento, created = Tratamiento.objects.get_or_create(medico_id=medico_mp.id,paciente_id=paciente.id)#por defecto, se asocia al paciente con el médico
-            print(nv_tratamiento)
+                nv_tratamiento, created = Tratamiento.objects.get_or_create(medico_id=medico_mp.id,paciente_id=paciente.id)#por defecto, se asocia al paciente con el médico
+            except:
+                print("Falta asignar médico!")
             messages.success(request,'Usuario creado con éxito!')
             return redirect('paciente-login')
         else:
@@ -78,7 +73,7 @@ def paciente_signup_view(request):
                 print(f"Campo '{field}': {', '.join(errors)}")
             for field, errors in pacienteform.errors.items():
                 print(f"Campo '{field}': {', '.join(errors)}")
-            messages.error(request,'Error en el registro de Usuario!')
+            messages.error(request,f"{', '.join(errors)}")
     return render(request,'paciente/paciente-signup.html',{'form': form})
 
 @login_required(login_url="/paciente-login")
@@ -97,12 +92,8 @@ def list_pacientes(request):
             medico = Medico.objects.get(user_id=request.user.id)
         except Medico.DoesNotExist:
             return render(request,'error/404.html')
-        mis_pacientes = Paciente.objects.filter(tratamiento__medico=medico.id).distinct()
-        pacientes = []
-        for paciente in mis_pacientes:
-            if paciente.status == True and paciente.baja == False: 
-                pacientes.append(paciente)
-    return render(request,'medico/manejo-paciente/list-pacientes.html',{'pacientes':pacientes,'medicos':medicos_activos})
+        mis_pacientes = Paciente.objects.filter(tratamiento__medico=medico.id,status=True,baja=False).distinct()
+    return render(request,'medico/manejo-paciente/list-pacientes.html',{'pacientes':mis_pacientes,'medicos':medicos_activos})
 
 @login_required(login_url="/medico-login")
 def add_paciente(request):
@@ -114,20 +105,17 @@ def add_paciente(request):
         pacienteform = PacienteFormAdd(request.POST)
         if userform.is_valid() and pacienteform.is_valid():
             # Usuario
-            try:
-                userform.first_name = request.POST['first_name'].capitalize()
-                userform.last_name = request.POST['last_name'].capitalize()
-                nombre_usuario = request.POST['first_name'].lower() + "." + request.POST['last_name'].lower()
-                nombre_usuario = re.sub(r'\s+', '', nombre_usuario) #nombre sin espacios
-                userform.username = unidecode(nombre_usuario) #nombre sin caracteres especiales
-                userform.set_password(userform.password)
-                userform.save()
-            except:
-                messages.info(request,'Usuario existente!')
+            if User.objects.filter(email=request.POST['email']):
+                messages.error(request,'Correo electrónico inválido: ya fue utilizado en otra cuenta!')
                 return redirect('add_paciente')
+            user = userform.save(commit=False)
+            user.first_name = request.POST['first_name'].capitalize()
+            user.last_name = request.POST['last_name'].capitalize()
+            user.set_password(request.POST['password1'])
+            user.save()
             # Paciente
             paciente = pacienteform.save(commit=False)
-            paciente.user = userform
+            paciente.user = user
             paciente.status = True #por este medio, no se envía la solicitud
             # Obra Social
             obraSocial = request.POST.get('obraSocial')
@@ -136,19 +124,20 @@ def add_paciente(request):
                 paciente.obraSocial = obra_social
             paciente.save()
             my_paciente_group = Group.objects.get_or_create(name='PACIENTE')
-            my_paciente_group[0].user_set.add(userform)
+            my_paciente_group[0].user_set.add(user)
             # Tratamiento: Relación Médico-Paciente
             if es_medico(request.user): #si el médico agrega un paciente, se crea la relación automáticamente
                 medico = Medico.objects.get(user_id=request.user.id)
                 nv_tratamiento = Tratamiento.objects.get_or_create(medico_id=medico.id,paciente_id=paciente.id)
-                print(nv_tratamiento)
-            #si el admin crea un paciente, le debe asociar un médico
+            # si el admin crea un paciente, le debe asociar un médico
             messages.success(request,'Paciente creado con éxito!')
             return redirect('list_pacientes')
         else:
+            for field, errors in userform.errors.items():
+                print(f"Campo '{field}': {', '.join(errors)}")
             for field, errors in pacienteform.errors.items():
                 print(f"Campo '{field}': {', '.join(errors)}")
-            messages.error(request,'Error en la creación del paciente!')
+            messages.error(request,f"{', '.join(errors)}")
     ObrasSociales = ObraSocial.objects.all()
     return render(request,'medico/manejo-paciente/add-paciente.html',{'form': form,'ObrasSociales':ObrasSociales})
 

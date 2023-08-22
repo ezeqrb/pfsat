@@ -19,7 +19,9 @@ def es_medico(user):
 def es_paciente(user):
     return user.groups.filter(name='PACIENTE').exists()
 
-#if request.user.is_authenticated:return redirect('afterlogin')
+def login_view(request):
+    return redirect('index')
+
 def afterlogin_view(request):
     if es_paciente(request.user):
         solicitud = Paciente.objects.filter(user_id=request.user.id,status=True)
@@ -33,7 +35,7 @@ def afterlogin_view(request):
             return redirect('medico/medico-dashboard')
         else:
             return render(request,'sat/private/user_wait_for_approval.html')
-    elif request.user.is_staff: #es_admin(request.user)
+    elif request.user.is_staff: 
         return redirect('admin-dashboard')
     else:
         return render(request,'sat/private/user_wait_for_approval.html')
@@ -99,7 +101,7 @@ def admin_dashboard_view(request):
 
 @login_required(login_url='/admin')
 def approve_user_view(request,user_id):
-    if request.user.is_staff:
+    if request.user.is_staff or es_medico(request.user):
         try:
             usuario = User.objects.get(id=user_id)
         except User.DoesNotExist:
@@ -119,7 +121,7 @@ def approve_user_view(request,user_id):
 
 @login_required(login_url='/admin')
 def reject_user_view(request,user_id):
-    if request.user.is_staff:
+    if request.user.is_staff or es_medico(request.user):
         try:
             usuario = User.objects.get(id=user_id)
         except User.DoesNotExist:

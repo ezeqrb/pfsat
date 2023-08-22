@@ -1,7 +1,7 @@
 from django import forms
 from .models import Paciente,ObraSocial
 from django.contrib.auth.models import User, Group
-from django.forms import ValidationError
+from django.contrib.auth.forms import UserCreationForm
 
 class PerfilForm(forms.ModelForm):
     class Meta:
@@ -11,21 +11,31 @@ class PerfilForm(forms.ModelForm):
             'imagen': forms.ClearableFileInput(attrs={'class':'form-control'}),
         }
 
-class UserForm(forms.ModelForm):
+class UserForm(UserCreationForm):
+    password1 = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la contraseña'}),
+        help_text="La contraseña debe contener al menos 8 caracteres y no puede ser demasiado común."
+    )
+    password2 = forms.CharField(
+        label="Confirmar contraseña",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirme la contraseña'}),
+        help_text="Ingrese la misma contraseña para confirmar."
+    )
     class Meta:
         model = User
-        fields = ['first_name','last_name','username','email','password']
+        fields = ['first_name','last_name','username','email','password1','password2']
         widgets = {
-            'first_name': forms.TextInput(attrs={'class':'form-control','placeholder':'Ingrese el nombre'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control','placeholder':'Ingrese el apellido'}),
-            'email': forms.TextInput(attrs={'class':'form-control','placeholder':'Ingrese el correo electrónico'}),
-            'password': forms.TextInput(attrs={'class':'form-control','placeholder':'Ingrese la contraseña'}),
+            'first_name': forms.TextInput(attrs={'class':'form-control','placeholder':'Ingrese el nombre','required':'required'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control','placeholder':'Ingrese el apellido','required':'required'}),
+            'username': forms.TextInput(attrs={'class':'form-control','placeholder':'Usuario recomendado: nombre.apellido','required':'required'}),
+            'email': forms.EmailInput(attrs={'class':'form-control','placeholder':'Ingrese el correo electrónico','required':'required'}),
         }
 
 class UserFormView(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name','last_name','username','email','password']
+        fields = ['first_name','last_name','username','email']
         widgets = {
             'first_name': forms.TextInput(attrs={'class':'form-control','readonly': 'readonly'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control','readonly': 'readonly'}),

@@ -79,7 +79,11 @@
                         <td>{{paciente.dni}}</td>
                         <td>{{paciente.get_fullname}}</td>
                         <td>{{paciente.get_edad}}</td>
-                        <td>{{paciente.obraSocial.nombre}}</td>
+                        {% if paciente.obraSocial %}
+                            <td>{{paciente.obraSocial.nombre}}</td>
+                        {% else %}
+                            <td>---</td>
+                        {% endif %}    
                         {% if paciente.numeroObraSocial %}
                             <td>{{paciente.numeroObraSocial}}</td>
                         {% else %}
@@ -87,8 +91,8 @@
                         {% endif %}
                         <td>    
                             <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'edit_paciente' paciente.id  %}" title="Editar"><i data-feather="edit"></i></a>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'delete_paciente' paciente.id  %}" title="Eliminar"><i data-feather="trash-2"></i></a>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" type="button" data-bs-toggle="modal" data-bs-target="#createGroupModal{{ paciente.id }}" title="Asignar Médico"><i data-feather="arrow-down-circle"></i></a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'delete_paciente' paciente.id  %}" title="Eliminar"><i data-feather="trash-2"></i></a>
                         </td>
                     </tr>
                     {% endfor %}

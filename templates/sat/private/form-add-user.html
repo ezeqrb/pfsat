@@ -1,22 +1,20 @@
 <div class="row gx-3 mb-3">
 {% if form.userForm %}
 {% for campo in form.userForm %}
-    {% if campo.name == 'username' %}
-    <input class="form-control" type="text" id="{{ campo.auto_id }}" name="{{ campo.name }}" value="{{ campo.value }}" hidden/>
-    {% else %}
-    <div class="form-group col-md-6 text-center">
+    <div class="form-group col-md-6 text-center mb-3">
         <label class="small mb-1 fw-bold" for="">{{campo.label}}</label>
         {{campo}}
-    
         <div class="small mb-1 error">{{campo.errors}}</div>
+        {% if campo.name == "password1" %}
+        <p class="small lh-sm fw-light text-center mb-n2">Debe tener al menos 8 dígitos y<br>no estar asociada a los datos ingresados</p>
+        {% endif %}
     </div>
-    {% endif %}
 {% endfor %}
 {% endif %}
 
 {% if form.usuarioForm %}
 {% for campo in form.usuarioForm %}
-    <div class="form-group col-md-6 text-center">
+    <div class="form-group col-md-6 text-center mb-3">
         <label class="small mb-1 fw-bold" for="">{{campo.label}}</label>
         {{campo}}
 
