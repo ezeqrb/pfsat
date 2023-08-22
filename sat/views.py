@@ -91,9 +91,9 @@ def mi_perfil_view(request):
 @login_required(login_url='/admin')
 def admin_dashboard_view(request):
     if request.user.is_staff:
-        pacientes_pendientes = Paciente.objects.all().filter(status=False)
-        medicos = Medico.objects.all()
-        usuarios = {'pacientes':pacientes_pendientes,'medicos':medicos}
+        pacientes_pendientes = Paciente.objects.filter(status=False,baja=False)
+        medicos_pendiente = Medico.objects.filter(status=False)
+        usuarios = {'pacientes':pacientes_pendientes,'medicos':medicos_pendiente}
         return render(request,'sat/private/admin-dashboard.html',{'usuarios':usuarios})
     else:
         messages.error(request,'Permiso denegado!')
@@ -114,7 +114,10 @@ def approve_user_view(request,user_id):
         user.status=True
         user.save()
         messages.success(request,'Solicitud aprobada!')
-        return redirect('admin-dashboard')
+        if request.user.is_staff:
+            return redirect('admin-dashboard')
+        else:
+            return redirect('medico-dashboard')
     else:
         messages.error(request,'Permiso denegado!')
         return redirect('afterlogin')
@@ -135,7 +138,10 @@ def reject_user_view(request,user_id):
         usuario.delete()
         user.delete()
         messages.success(request,'Solicitud rechazada!')
-        return redirect('admin-dashboard')
+        if request.user.is_staff:
+            return redirect('admin-dashboard')
+        else:
+            return redirect('medico-dashboard')
     else:
         messages.error(request,'Permiso denegado!')
         return redirect('afterlogin')

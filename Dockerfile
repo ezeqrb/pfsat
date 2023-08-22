@@ -11,7 +11,6 @@ ENV DATABASE_PORT 5432
 ENV EMAIL_USER 'proyectofinalsat@gmail.com'
 ENV EMAIL_PASSWORD 'vejlablgiwzskngh'
 
-
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
@@ -28,7 +27,7 @@ COPY . /app/
 EXPOSE 8000
 
 # Comando para ejecutar la migracion de la db
-CMD ["python", "manage.py", "migrate"]
+RUN ["python", "manage.py", "migrate"]
 
 # Comando para ejecutar el servidor de Django
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

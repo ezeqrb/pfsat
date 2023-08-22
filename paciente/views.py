@@ -92,8 +92,8 @@ def list_pacientes(request):
             medico = Medico.objects.get(user_id=request.user.id)
         except Medico.DoesNotExist:
             return render(request,'error/404.html')
-        mis_pacientes = Paciente.objects.filter(tratamiento__medico=medico.id,status=True,baja=False).distinct()
-    return render(request,'medico/manejo-paciente/list-pacientes.html',{'pacientes':mis_pacientes,'medicos':medicos_activos})
+        pacientes = Paciente.objects.filter(tratamiento__medico=medico.id,status=True,baja=False).distinct()
+    return render(request,'medico/manejo-paciente/list-pacientes.html',{'pacientes':pacientes,'medicos':medicos_activos})
 
 @login_required(login_url="/medico-login")
 def add_paciente(request):
