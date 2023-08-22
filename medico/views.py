@@ -18,7 +18,6 @@ def medico_login_view(request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
-        print(user.password)
         if user is not None:
             if not es_paciente(user):   #solo los médicos pueden ser admin
                 form = login(request, user)
