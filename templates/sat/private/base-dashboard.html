@@ -17,23 +17,6 @@
         <script src="{% static 'js-dash/scripts.js' %}"></script>
         {% block script %} {% endblock %}
 
-    <style>
-        .custom-button {
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            text-align: left;
-            margin-left: 1rem;
-            margin-top: .5rem;
-            color: #212832;
-        }
-        
-        .custom-button:hover {
-            color: #0061f2; /* Cambia el color del texto a azul cuando el mouse está sobre el botón */
-            /* Agrega otros estilos de resaltado aquí si lo deseas */
-        }
-        </style>
     </head>
     <body class="nav-fixed">
         <nav class="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white" id="sidenavAccordion">
@@ -220,8 +203,6 @@
                             <div class="collapse" id="collapseSurvey" data-bs-parent="#accordionSidenav">
                                 <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPagesMenu">
                                     <a class="nav-link" href="{% url 'list_encuestas' %}">Listar encuestas</a>
-                                    <button class="custom-button" alt = "Blank form" id="create-blank-form">
-                                        <span class="form-template-label">Agregar Encuesta</span>
                                 </nav>
                             </div>
                             {% endif %}
