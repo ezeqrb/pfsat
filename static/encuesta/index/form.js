@@ -52,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             var url = document.getElementById("copy-url");
             navigator.clipboard.writeText(url.value);
-            document.querySelector("#send-form").style.display = "none";
         })
     })
     document.querySelector("#setting-form").addEventListener("submit", e => {
