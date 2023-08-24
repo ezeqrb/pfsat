@@ -137,12 +137,12 @@
                             {% endfor %}
                         {% else %}
                             {% if i.status == 'b' %}
-                                {% if user.is_staff and i.medicocreaencuesta_set.all %}
-                                <a class="text-secondary small me-1 mt-2" href="{% url 'view_encuesta' i.code %}" title="Ver">Ver</a>
-                                {% else %}
+                                {% if not user.is_staff and i.medicocreaencuesta_set.all or user.is_staff and not i.medicocreaencuesta_set.all %}
                                 <a class="text-warning small me-1 mt-2" href="{% url 'edit_encuesta' i.code %}" title="Editar">Editar</a>
                                 <a class="text-success small me-1 mt-2" href="{% url 'publish_encuesta' i.code %}" title="Publicar">Publicar</a>
                                 <a class="text-danger small me-1 mt-2" href="{% url 'delete_form' i.code %}" title="Eliminar">Eliminar</a>
+                                {% else %}
+                                <a class="text-secondary small me-1 mt-2" href="{% url 'view_encuesta' i.code %}" title="Ver">Ver</a>
                                 {% endif %}
                             {% else %}
                                 <a class="text-secondary small me-1 mt-2" href="{% url 'view_encuesta' i.code %}" title="Ver">Ver</a>

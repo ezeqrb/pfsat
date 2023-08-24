@@ -168,7 +168,7 @@ def edit_paciente(request,paciente_id):
             else:
                 for field, errors in pacienteForm.errors.items():
                     print(f"Campo '{field}': {', '.join(errors)}")
-                messages.error(request,'Error al modificar datos del paciente!')
+                messages.error(request,f"{', '.join(errors)}")
         else:
             pacienteForm = PacienteFormEdit(instance=paciente)
         ObrasSociales = ObraSocial.objects.all()

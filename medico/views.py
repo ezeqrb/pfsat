@@ -132,7 +132,7 @@ def add_medico(request):
             else:
                 for field, errors in medicoform.errors.items():
                     print(f"Campo '{field}': {', '.join(errors)}")
-                messages.error(request,'Error en la creación del médico!')
+                messages.error(request,f"{', '.join(errors)}")
         Especialidades = Especialidad.objects.all()
         return render(request,'sat/private/manejo-medico/add-medico.html',{'form': form,'Especialidades':Especialidades})
     else:
@@ -167,7 +167,7 @@ def edit_medico(request,medico_id):
                 else:
                     for field, errors in medicoForm.errors.items():
                         print(f"Campo '{field}': {', '.join(errors)}")
-                    messages.error(request,'Error al modificar datos del médico!')
+                    messages.error(request,f"{', '.join(errors)}")
             else:
                 medicoForm = MedicoFormEdit(instance=medico)
             especialidades = Especialidad.objects.all()

@@ -7,6 +7,8 @@
         <div class="small mb-1 error">{{campo.errors}}</div>
         {% if campo.name == "password1" %}
         <p class="small lh-sm fw-light text-center mb-n2">Debe tener al menos 8 dígitos y<br>no estar asociada a los datos ingresados</p>
+        {% elif campo.name == "username" %}
+        <p class="small lh-sm fw-light text-center mb-n2">Puede contener únicamente letras,<br>números y los caracteres @/./+/-/_.<br>No puede contener espacios.</p>
         {% endif %}
     </div>
 {% endfor %}

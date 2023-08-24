@@ -25,7 +25,7 @@ jobs:
         with:
           context: ./
           push: true
-          dockerfile: ./Dockerfile.dev
+          file: ./docker/dev/Dockerfile
           tags:  ${{ env.DOCKERHUB_USERNAME }}/pfsatdev:latest
   deploy:
     needs: build
