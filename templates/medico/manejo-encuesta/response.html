@@ -20,10 +20,17 @@
                 </h1>
             </div>
             <div class="col-12 col-xl-auto mb-3">
+                {% if user.groups.first.name == 'PACIENTE' %}
                 <a class="btn btn-sm btn-light text-primary" href="{% url 'list_encuestas' %}">
                     <i class="me-1" data-feather="arrow-left"></i>
                     Volver a Lista de Encuestas
                 </a>
+                {% else %}
+                <a class="btn btn-sm btn-light text-primary" href="{% url 'responses' form.code %}">
+                    <i class="me-1" data-feather="arrow-left"></i>
+                    Volver a Respuestas
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>
