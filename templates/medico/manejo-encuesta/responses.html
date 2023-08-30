@@ -33,7 +33,7 @@
                 <a class="btn btn-info btn-sm ms-2" type="button" href="{% url 'view_encuesta' form.code %}">Ver Encuesta</a>
                 <a class="btn btn-secondary btn-sm ms-2" type="button" href="{% url 'unpublish_encuesta' form.code %}">Pasar a Borrador</a>
                 <a class="btn btn-warning btn-sm ms-2" type="button" id="send-form-btn">Obtener Link</a>
-                {% if responses %}
+                {% if not form.authenticated_responder and responses or form.authenticated_responder and encuestas_realizadas %}
                 <button class="btn btn-danger btn-sm ms-2" id="delete-responses"><span class="form-template-label">Eliminar Respuestas</span></button>
                 {% endif %}
                 <a class="btn btn-sm btn-light text-primary ms-2" href="{% url 'list_encuestas' %}">
@@ -69,7 +69,7 @@
     <span id="text-color" style="display: none;">{{form.text_color}}</span>
     <div class="card mb-3">
         <div class="card-body d-flex justify-content-evenly" id="responses">
-        {% if responses %}
+        {% if not form.authenticated_responder and responses or form.authenticated_responder and encuestas_realizadas %}
             <table id="datatablesSimple">
                 <thead class="text-primary text-center">
                     <tr>
@@ -82,24 +82,20 @@
                 </thead>
                 <tbody class="text-center small">
                 {% if form.authenticated_responder %}
-                    {% for encuesta in form.pacienterealizaencuesta_set.all %}
+                    {% for encuesta,respuesta in encuestas_con_respuestas %}
                     <tr>
-                        {% if encuesta.estado == 'p' %}
-                            <td>{{ encuesta.paciente.get_fullname }}</td>
-                            <td class="form-list-timestamp">
-                                {% if encuesta.fechaCreacion == encuesta.fechaModificacion %}
-                                    {{ encuesta.fechaCreacion }}
-                                {% else %}
-                                    {{ encuesta.fechaModificacion }}
-                                {% endif %}
-                            </td>
-                            <td>
-                            {% for i in responses %}
-                                {% if i.responder_email == encuesta.paciente.user.email %}
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'response' form.code i.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
-                                {% endif %}
-                            {% endfor %}
-                            </td> 
+                        {% if encuesta and respuesta %}
+                        <td>{{ encuesta.paciente.get_fullname }}</td>
+                        <td class="form-list-timestamp">
+                            {% if encuesta.fechaCreacion == encuesta.fechaModificacion %}
+                                {{ encuesta.fechaCreacion }}
+                            {% else %}
+                                {{ encuesta.fechaModificacion }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'response' form.code respuesta.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
+                        </td> 
                         {% endif %}
                     </tr>
                     {% endfor %}
@@ -118,13 +114,14 @@
                 </tr>
                 </tbody>
             </table>
-        </div>
         {% else %}
         <p>No hay respuestas registradas...</p>
         {% endif %}
+        </div>
+        
     </div>
 </div>
-{% if responses %}
+{% if not form.authenticated_responder and responses or form.authenticated_responder and encuestas_realizadas %}
 <div class="container-fluid px-4">
     <div class="card">
         <div class="card-body text-center p-5">

@@ -6,6 +6,7 @@ from .models import Choices, Questions, Answer, Form, Responses
 from paciente.models import Paciente,PacienteRealizaEncuesta
 from medico.models import Medico,MedicoCreaEncuesta
 from sat.views import es_medico, es_paciente
+from django.contrib.auth.decorators import login_required
 import json
 import random
 import string
@@ -39,11 +40,7 @@ def list_encuestas(request):
                         encuestas_respondidas.append(encuesta)
                 else:
                     encuestas_respondidas.append(form.id)
-            encuestas_hechas = list(zip(encuestas_respondidas,responses))
-            for e,r in encuestas_hechas:
-                print(e,r)
-                    
-
+            encuestas_hechas = list(zip(encuestas_respondidas,responses))#asocio las encuestas completadas por el paciente con sus respectivas respuestas
             return render(request, "medico/manejo-encuesta/list-encuestas.html", {"forms": forms,'encuestas_con_respuestas':encuestas_hechas})
         return render(request, "medico/manejo-encuesta/list-encuestas.html", {"forms": forms})
     else:
@@ -554,39 +551,85 @@ def submit_form(request, code):
             return redirect('index')
         #return render(request, "medico/manejo-encuesta/form_response.html", {"form": formInfo, "code": code})
 
+@login_required(login_url="/medico-login")
 def responses(request, code):
-    formInfo = Form.objects.filter(code = code)
+    if es_medico(request.user) or request.user.is_staff:
+        formInfo = Form.objects.filter(code = code)
+        if formInfo.count() == 0:
+            return render(request,'error/404.html')
+        else: formInfo = formInfo[0]
 
-    if formInfo.count() == 0:
-        return render(request,'error/404.html')
-    else: formInfo = formInfo[0]
-
-    try:
-        responsesSummary = []
-        choiceAnswered = {}
-        filteredResponsesSummary = {}
-        for question in formInfo.questions.all():
-            answers = Answer.objects.filter(answer_to = question.id)
-            if question.question_type == "checkbox" or question.question_type == "multiple choice":
-                choiceAnswered[question.question] = choiceAnswered.get(question.question, {})
-                for answer in answers:
-                    choice = answer.answer_to.choices.get(id = answer.answer).choice
-                    choiceAnswered[question.question][choice] = choiceAnswered.get(question.question, {}).get(choice, 0) + 1
-            responsesSummary.append({"question": question, "answers":answers })
-        for answr in choiceAnswered:
-            filteredResponsesSummary[answr] = {}
-            keys = choiceAnswered[answr].values()
-            for choice in choiceAnswered[answr]:
-                filteredResponsesSummary[answr][choice] = choiceAnswered[answr][choice]
-        return render(request, "medico/manejo-encuesta/responses.html", {
-            "form": formInfo,
-            "responses": Responses.objects.filter(response_to = formInfo),
-            "responsesSummary": responsesSummary,
-            "filteredResponsesSummary": filteredResponsesSummary
-        })
-    except:
-        messages.error(request,"Error al acceder a las respuestas de la encuesta!")
-        return redirect('list_encuestas')
+        try:
+            responsesSummary = []
+            choiceAnswered = {}
+            filteredResponsesSummary = {}
+            for question in formInfo.questions.all():
+                answers = Answer.objects.filter(answer_to = question.id)
+                if question.question_type == "checkbox" or question.question_type == "multiple choice":
+                    choiceAnswered[question.question] = choiceAnswered.get(question.question, {})
+                    for answer in answers:
+                        choice = answer.answer_to.choices.get(id = answer.answer).choice
+                        choiceAnswered[question.question][choice] = choiceAnswered.get(question.question, {}).get(choice, 0) + 1
+                responsesSummary.append({"question": question, "answers":answers })
+            for answr in choiceAnswered:
+                filteredResponsesSummary[answr] = {}
+                keys = choiceAnswered[answr].values()
+                for choice in choiceAnswered[answr]:
+                    filteredResponsesSummary[answr][choice] = choiceAnswered[answr][choice]
+            
+            if not formInfo.authenticated_responder:
+                # significa que cualquier usuario puede contestar la encuenta, por ende, una vez que la responde, se publica automáticamente
+                return render(request, "medico/manejo-encuesta/responses.html", {
+                    "form": formInfo,
+                    "responses": Responses.objects.filter(response_to = formInfo),
+                    "responsesSummary": responsesSummary,
+                    "filteredResponsesSummary": filteredResponsesSummary,
+                    "encuestas_realizadas": None,
+                    "encuestas_con_respuestas": None
+                })
+            else:
+                if es_medico(request.user):
+                    medico = Medico.objects.get(user_id=request.user.id)
+                    mis_pacientes = Paciente.objects.filter(tratamiento__medico=medico.id,status=True,baja=False).distinct()
+                    encuestas_realizadas = []
+                    respuestas = []
+                    for paciente in mis_pacientes:
+                        encuestas = PacienteRealizaEncuesta.objects.filter(encuesta_id=formInfo.id,paciente_id=paciente.id,estado='p') #me quedo con las encuestas publicadas por los pacientes de un médico en particular
+                        if encuestas.count() > 0:
+                            for e in encuestas: 
+                                encuestas_realizadas.append(e) 
+                        respuesta = Responses.objects.filter(response_to = formInfo,responder_email=paciente.user.email)
+                        if respuesta.count() > 0:
+                            for r in respuesta: 
+                                respuestas.append(r) 
+                else:
+                    encuestas_realizadas = []
+                    respuestas = []
+                    encuestas = PacienteRealizaEncuesta.objects.filter(encuesta_id=formInfo.id,estado='p') #me quedo con las encuestas publicadas por todos los pacientes
+                    if encuestas.count() > 0:
+                        for e in encuestas: 
+                            encuestas_realizadas.append(e) 
+                            paciente = Paciente.objects.get(id=e.paciente_id)
+                            respuestas.append(Responses.objects.filter(response_to = formInfo,responder_email = paciente.user.email))
+                       
+                #cantidad_encuestas_realizadas = sum(encuesta_realizada_queryset.count() for encuesta_realizada_queryset in encuestas_realizadas)
+                #cantidad = cantidad_encuestas_realizadas > 0
+                encuestas_con_respuestas = list(zip(encuestas_realizadas,respuestas))
+                return render(request, "medico/manejo-encuesta/responses.html", {
+                    "form": formInfo,
+                    "responses": respuestas,
+                    "responsesSummary": responsesSummary,
+                    "filteredResponsesSummary": filteredResponsesSummary,
+                    "encuestas_realizadas": encuestas_realizadas,
+                    "encuestas_con_respuestas": encuestas_con_respuestas
+                })
+        except Exception as e:
+            print(e)
+            messages.error(request,"Error al acceder a las respuestas de la encuesta!")
+            return redirect('list_encuestas')
+    else:
+        messages.error(request,'Permiso denegado!')
+        return redirect('afterlogin')
 
 def response(request, code, response_code):
     formInfo = Form.objects.filter(code = code)

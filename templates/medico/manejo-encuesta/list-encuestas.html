@@ -69,7 +69,7 @@
                     <tr>
                         <th style="width:235px;">Título</th>
                         <th style="width:285px;">Última Modificación</th>
-                        <th style="width:110px;">Estado</th>
+                        <th>Estado</th>
                         <th style="width:185px;">Creada Por</th>
                         <th style="width:235px;">Acciones</th>
                     </tr>
@@ -87,20 +87,20 @@
                         </td>
                         {% if not user.groups.first.name == 'PACIENTE' %}
                             {% if i.status == 'b' %}
-                            <td class="badge bg-primary text-white rounded-pill">Borrador
+                            <td class="badge bg-primary text-white rounded-pill me-5 mt-2">Borrador
                             {% else %}
-                            <td class="badge bg-secondary text-white rounded-pill">Publicada
+                            <td class="badge bg-secondary text-white rounded-pill me-5 mt-2">Publicada
                             {% endif %}
                         </td>
                         {% else %}
-                            {% for encuesta_respondida in encuestas_respondidas %}
-                                {% if i.id == encuesta_respondida.encuesta_id or i.id == encuesta_respondida %}
-                                    {% if encuesta_respondida.estado == 'b' %} 
+                            {% for encuesta,respuesta in encuestas_con_respuestas %}
+                                {% if i.id == encuesta.encuesta_id or i.id == encuesta %}
+                                    {% if encuesta.estado == 'b' %} 
                                     <td class="badge bg-warning text-white rounded-pill me-5 mt-2">En Proceso
-                                    {% elif encuesta_respondida.estado == 'p' %} 
+                                    {% elif encuesta.estado == 'p' %} 
                                     <td class="badge bg-success text-white rounded-pill me-5 mt-2">Envíada
                                     {% else %}
-                                    <td class="badge bg-danger text-white rounded-pill">Por Hacer
+                                    <td class="badge bg-danger text-white rounded-pill me-5 mt-2">Por Hacer
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
