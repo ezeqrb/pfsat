@@ -27,14 +27,24 @@ def list_encuestas(request):
             responses = []
             encuestas_respondidas = []
             for form in forms:
-                responses.extend(Responses.objects.filter(response_to=form.id, responder_email=request.user.email))
-                encuesta_respondida = PacienteRealizaEncuesta.objects.filter(paciente_id=paciente.id,encuesta_id=form.id)
-                if encuesta_respondida.count() > 0:
-                    for encuesta in encuesta_respondida: #el paciente puede responder una encuesta más de una vez
+                response = Responses.objects.filter(response_to=form.id, responder_email=request.user.email) 
+                if response.count() > 0:
+                    for r in response: 
+                        responses.append(r) 
+                else:
+                    responses.append(form.id)           
+                encuestas_realizadas = PacienteRealizaEncuesta.objects.filter(paciente_id=paciente.id,encuesta_id=form.id)
+                if encuestas_realizadas.count() > 0:
+                    for encuesta in encuestas_realizadas: #el paciente puede responder una encuesta más de una vez
                         encuestas_respondidas.append(encuesta)
                 else:
                     encuestas_respondidas.append(form.id)
-            return render(request, "medico/manejo-encuesta/list-encuestas.html", {"forms": forms,"responses": responses,'encuestas_respondidas':encuestas_respondidas})
+            encuestas_hechas = list(zip(encuestas_respondidas,responses))
+            for e,r in encuestas_hechas:
+                print(e,r)
+                    
+
+            return render(request, "medico/manejo-encuesta/list-encuestas.html", {"forms": forms,'encuestas_con_respuestas':encuestas_hechas})
         return render(request, "medico/manejo-encuesta/list-encuestas.html", {"forms": forms})
     else:
         messages.error(request,'Permiso denegado: Debe iniciar sesión!')
@@ -335,9 +345,12 @@ def publish_encuesta(request,code):
             formInfo.save()
         else: #si no es médico ni admin, es paciente
             paciente = Paciente.objects.get(user_id=request.user.id)
-            encuesta_completada = PacienteRealizaEncuesta.objects.get(paciente=paciente.id,encuesta=formInfo.id)
-            encuesta_completada.estado = 'p'
-            encuesta_completada.save()
+            try:
+                encuesta_completada = PacienteRealizaEncuesta.objects.get(paciente=paciente.id,encuesta=formInfo.id,estado='b')
+                encuesta_completada.estado = 'p'
+                encuesta_completada.save()
+            except:
+                messages.error(request,"Hay más de una misma encuesta en borrador. Debe eliminar la que no corresponda!")
         messages.success(request,'Encuesta publicada con éxito!')
         return redirect('list_encuestas')
     else:
@@ -484,7 +497,12 @@ def complete_encuesta(request, code):
     if request.user.is_authenticated:
         if es_paciente(request.user):
             paciente = Paciente.objects.get(user_id=request.user.id)
-            nv_encuesta = PacienteRealizaEncuesta.objects.create(paciente_id=paciente.id,encuesta_id=formInfo.id)
+            try: # si la encuesta fue reasignada, no creo una nueva
+                encuesta_reasignada = PacienteRealizaEncuesta.objects.get(paciente_id=paciente.id,encuesta_id=formInfo.id,estado='r')
+                encuesta_reasignada.estado = 'b'
+                encuesta_reasignada.save()
+            except: # si la encuesta no fue reasignada, creo una nueva
+                nv_encuesta = PacienteRealizaEncuesta.objects.create(paciente_id=paciente.id,encuesta_id=formInfo.id)
     else:
         if formInfo.authenticated_responder:
             messages.error(request,"Permiso denegado: Debe iniciar sesión!")

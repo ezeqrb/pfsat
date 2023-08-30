@@ -67,15 +67,15 @@
             <table id="datatablesSimple" class="px-0">
                 <thead class="text-primary text-center">
                     <tr>
-                        <th style="width:245px;">Título</th>
+                        <th style="width:235px;">Título</th>
                         <th style="width:285px;">Última Modificación</th>
-                        <th>Estado</th>
-                        <th style="width:180px;">Creada Por</th>
-                        <th>Acciones</th>
+                        <th style="width:110px;">Estado</th>
+                        <th style="width:185px;">Creada Por</th>
+                        <th style="width:235px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="text-center small">
-                    {% for i in forms %}
+                {% for i in forms %}
                     <tr>
                         <td>{{i.title}}</td>
                         <td>
@@ -93,19 +93,19 @@
                             {% endif %}
                         </td>
                         {% else %}
-                            {% for encuesta_respondida in encuestas_respondidas %}
-                                {% if i.id == encuesta_respondida.encuesta_id or i.id == encuesta_respondida %}
-                                    {% if encuesta_respondida.estado == 'b' %} 
+                            {% for encuesta,respuesta in encuestas_con_respuestas %}
+                                {% if i.id == encuesta.encuesta_id or i.id == encuesta %}
+                                    {% if encuesta.estado == 'b' %} 
                                     <td class="badge bg-warning text-white rounded-pill me-5 mt-2">En Proceso
-                                    {% elif encuesta_respondida.estado == 'p' %} 
+                                    {% elif encuesta.estado == 'p' %} 
                                     <td class="badge bg-success text-white rounded-pill me-5 mt-2">Envíada
                                     {% else %}
                                     <td class="badge bg-danger text-white rounded-pill me-5 mt-2">Por Hacer
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
-                        </td>
                         {% endif %}
+                        </td>
                         <td>
                             {% if i.medicocreaencuesta_set.first %}
                                 {{ i.medicocreaencuesta_set.first }}
@@ -113,26 +113,24 @@
                                 ADMIN
                             {% endif %}
                         </td>
-                        <td class="d-flex justify-content-center">
+                        <td>
                         {% if user.groups.first.name == 'PACIENTE' %}
-                            {% for encuesta_respondida in encuestas_respondidas %}
-                                {% if encuesta_respondida.encuesta_id == i.id or encuesta_respondida == i.id %}
-                                    {% if encuesta_respondida.estado == 'p' %}
-                                        {% for r in responses %}
-                                            {% if r.response_to_id == i.id %}
-                                            <a class="text-secondary small me-1 mt-2" href="{% url 'response' i.code r.response_code %}" title="Ver Respuestas">Ver</a>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% elif encuesta_respondida.estado == 'b' %}
-                                        {% for r in responses %}
-                                            {% if r.response_to_id == i.id %}
-                                            <a class="text-warning small me-1 mt-2" href="{% url 'edit_response' i.code r.response_code %}" title="Editar Respuestas">Editar</a>
-                                            {% endif %}
-                                        {% endfor %}
+                            {% for encuesta,respuesta in encuestas_con_respuestas %}
+                                {% if encuesta.encuesta_id == i.id and respuesta.response_to_id == i.id %}
+                                <div class="d-flex justify-content-center">
+                                    {% if encuesta.estado == 'p' %}
+                                        <a class="text-secondary small me-1 mt-2" href="{% url 'response' i.code respuesta.response_code %}" title="Ver Respuestas">Ver</a>
+                                    {% elif encuesta.estado == 'b' %}
+                                        <a class="text-warning small me-1 mt-2" href="{% url 'edit_response' i.code respuesta.response_code %}" title="Editar Respuestas">Editar</a>
                                         <a class="text-success small me-1 mt-2" href="{% url 'publish_encuesta' i.code %}" title="Publicar">Publicar</a>
-                                    {% else %}
+                                    {% elif encuesta.estado == 'r' %}
                                         <a class="text-danger small me-1 mt-2" href="{% url 'complete_encuesta' i.code %}" title="Completar">Completar</a>
                                     {% endif %}
+                                </div>
+                                {% elif encuesta == i.id and respuesta == i.id %} 
+                                <div class="d-flex justify-content-center">
+                                    <a class="text-danger small me-1 mt-2" href="{% url 'complete_encuesta' i.code %}" title="Completar">Completar</a>
+                                </div>
                                 {% endif %}
                             {% endfor %}
                         {% else %}
@@ -156,7 +154,7 @@
                         {% endif %}
                         </td>
                     </tr>
-                    {% endfor %}
+                {% endfor %}
                 </tbody>
             </table>
         {% else %}
