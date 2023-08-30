@@ -100,18 +100,19 @@
                     </tr>
                     {% endfor %}
                 {% else %}
-                {% for i in responses %}
-                    {% if form.collect_email %}
-                        <td>{{ i.responder_email }}</td>
-                    {% else %}
-                        <td>{{ i.responder_ip }}</td>
-                    {% endif %}
-                    <td>
-                        <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'response' form.code i.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
-                    </td>
-                {% endfor %}
+                    {% for i in responses %}
+                    <tr>
+                        {% if form.collect_email %}
+                            <td>{{ i.responder_email }}</td>
+                        {% else %}
+                            <td>{{ i.responder_ip }}</td>
+                        {% endif %}
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark me-2" href="{% url 'response' form.code i.response_code %}" title="Ver Respuestas"><i data-feather="eye"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 {% endif %}
-                </tr>
                 </tbody>
             </table>
         {% else %}

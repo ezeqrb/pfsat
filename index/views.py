@@ -610,10 +610,11 @@ def responses(request, code):
                         for e in encuestas: 
                             encuestas_realizadas.append(e) 
                             paciente = Paciente.objects.get(id=e.paciente_id)
-                            respuestas.append(Responses.objects.filter(response_to = formInfo,responder_email = paciente.user.email))
+                            respuesta = Responses.objects.filter(response_to = formInfo,responder_email = paciente.user.email)
+                            if respuesta.count() > 0:
+                                for r in respuesta: 
+                                    respuestas.append(r) 
                        
-                #cantidad_encuestas_realizadas = sum(encuesta_realizada_queryset.count() for encuesta_realizada_queryset in encuestas_realizadas)
-                #cantidad = cantidad_encuestas_realizadas > 0
                 encuestas_con_respuestas = list(zip(encuestas_realizadas,respuestas))
                 return render(request, "medico/manejo-encuesta/responses.html", {
                     "form": formInfo,
