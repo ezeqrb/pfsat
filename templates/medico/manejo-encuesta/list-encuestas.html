@@ -62,9 +62,9 @@
 {% endif %}
 <div class="container-fluid px-4">
     <div class="card">
-        <div class="card-body d-flex justify-content-evenly">
+        <div class="table-responsive">
         {% if forms %}
-            <table id="datatablesSimple" class="px-0">
+            <table id="datatablesSimple" style="margin: 1.5rem;">
                 <thead class="text-primary text-center">
                     <tr>
                         <th style="width:245px;">Título</th>
@@ -74,7 +74,7 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="text-center small">
+                <tbody class="text-center">
                     {% for i in forms %}
                     <tr>
                         <td>{{i.title}}</td>
@@ -87,20 +87,20 @@
                         </td>
                         {% if not user.groups.first.name == 'PACIENTE' %}
                             {% if i.status == 'b' %}
-                            <td class="badge bg-primary text-white rounded-pill me-5 mt-2">Borrador
+                            <td class="badge bg-primary text-white rounded-pill">Borrador
                             {% else %}
-                            <td class="badge bg-secondary text-white rounded-pill me-5 mt-2">Publicada
+                            <td class="badge bg-secondary text-white rounded-pill">Publicada
                             {% endif %}
                         </td>
                         {% else %}
                             {% for encuesta_respondida in encuestas_respondidas %}
                                 {% if i.id == encuesta_respondida.encuesta_id or i.id == encuesta_respondida %}
                                     {% if encuesta_respondida.estado == 'b' %} 
-                                    <td class="badge bg-warning text-white rounded-pill me-5 mt-2">En Proceso
+                                    <td class="badge bg-warning text-white rounded-pill">En Proceso
                                     {% elif encuesta_respondida.estado == 'p' %} 
-                                    <td class="badge bg-success text-white rounded-pill me-5 mt-2">Envíada
+                                    <td class="badge bg-success text-white rounded-pill">Envíada
                                     {% else %}
-                                    <td class="badge bg-danger text-white rounded-pill me-5 mt-2">Por Hacer
+                                    <td class="badge bg-danger text-white rounded-pill">Por Hacer
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
