@@ -62,9 +62,9 @@
 {% endif %}
 <div class="container-fluid px-4">
     <div class="card">
-        <div class="card-body d-flex justify-content-evenly">
+        <div class="table-responsive">
         {% if forms %}
-            <table id="datatablesSimple" class="px-0">
+            <table id="datatablesSimple" style="margin: 1.5rem;">
                 <thead class="text-primary text-center">
                     <tr>
                         <th style="width:245px;">Título</th>
@@ -87,20 +87,20 @@
                         </td>
                         {% if not user.groups.first.name == 'PACIENTE' %}
                             {% if i.status == 'b' %}
-                            <td class="badge bg-primary text-white rounded-pill me-5 mt-2">Borrador
+                            <td class="badge bg-primary text-white rounded-pill">Borrador
                             {% else %}
-                            <td class="badge bg-secondary text-white rounded-pill me-5 mt-2">Publicada
+                            <td class="badge bg-secondary text-white rounded-pill">Publicada
                             {% endif %}
                         </td>
                         {% else %}
                             {% for encuesta_respondida in encuestas_respondidas %}
                                 {% if i.id == encuesta_respondida.encuesta_id or i.id == encuesta_respondida %}
                                     {% if encuesta_respondida.estado == 'b' %} 
-                                    <td class="badge bg-warning text-white rounded-pill me-5 mt-2">En Proceso
+                                    <td class="badge bg-warning text-white rounded-pill">En Proceso
                                     {% elif encuesta_respondida.estado == 'p' %} 
-                                    <td class="badge bg-success text-white rounded-pill me-5 mt-2">Envíada
+                                    <td class="badge bg-success text-white rounded-pill">Envíada
                                     {% else %}
-                                    <td class="badge bg-danger text-white rounded-pill me-5 mt-2">Por Hacer
+                                    <td class="badge bg-danger text-white rounded-pill">Por Hacer
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
@@ -120,37 +120,37 @@
                                     {% if encuesta_respondida.estado == 'p' %}
                                         {% for r in responses %}
                                             {% if r.response_to_id == i.id %}
-                                            <a class="text-secondary small me-1 mt-2" href="{% url 'response' i.code r.response_code %}" title="Ver Respuestas">Ver</a>
+                                            <a class="text-secondary small" href="{% url 'response' i.code r.response_code %}" title="Ver Respuestas">Ver</a>
                                             {% endif %}
                                         {% endfor %}
                                     {% elif encuesta_respondida.estado == 'b' %}
                                         {% for r in responses %}
                                             {% if r.response_to_id == i.id %}
-                                            <a class="text-warning small me-1 mt-2" href="{% url 'edit_response' i.code r.response_code %}" title="Editar Respuestas">Editar</a>
+                                            <a class="text-warning small" href="{% url 'edit_response' i.code r.response_code %}" title="Editar Respuestas">Editar</a>
                                             {% endif %}
                                         {% endfor %}
-                                        <a class="text-success small me-1 mt-2" href="{% url 'publish_encuesta' i.code %}" title="Publicar">Publicar</a>
+                                        <a class="text-success small" href="{% url 'publish_encuesta' i.code %}" title="Publicar">Publicar</a>
                                     {% else %}
-                                        <a class="text-danger small me-1 mt-2" href="{% url 'complete_encuesta' i.code %}" title="Completar">Completar</a>
+                                        <a class="text-danger small" href="{% url 'complete_encuesta' i.code %}" title="Completar">Completar</a>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
                         {% else %}
                             {% if i.status == 'b' %}
                                 {% if not user.is_staff and i.medicocreaencuesta_set.all or user.is_staff and not i.medicocreaencuesta_set.all %}
-                                <a class="text-warning small me-1 mt-2" href="{% url 'edit_encuesta' i.code %}" title="Editar">Editar</a>
-                                <a class="text-success small me-1 mt-2" href="{% url 'publish_encuesta' i.code %}" title="Publicar">Publicar</a>
-                                <a class="text-danger small me-1 mt-2" href="{% url 'delete_form' i.code %}" title="Eliminar">Eliminar</a>
+                                <a class="text-warning small" href="{% url 'edit_encuesta' i.code %}" title="Editar">Editar</a>
+                                <a class="text-success small" href="{% url 'publish_encuesta' i.code %}" title="Publicar">Publicar</a>
+                                <a class="text-danger small" href="{% url 'delete_form' i.code %}" title="Eliminar">Eliminar</a>
                                 {% else %}
-                                <a class="text-secondary small me-1 mt-2" href="{% url 'view_encuesta' i.code %}" title="Ver">Ver</a>
+                                <a class="text-secondary small" href="{% url 'view_encuesta' i.code %}" title="Ver">Ver</a>
                                 {% endif %}
                             {% else %}
-                                <a class="text-secondary small me-1 mt-2" href="{% url 'view_encuesta' i.code %}" title="Ver">Ver</a>
-                                <a class="text-info small me-1 mt-2" href="{% url 'responses' i.code %}" title="Ver Respuestas">Respuestas</a>
+                                <a class="text-secondary small" href="{% url 'view_encuesta' i.code %}" title="Ver">Ver</a>
+                                <a class="text-info small" href="{% url 'responses' i.code %}" title="Ver Respuestas">Respuestas</a>
                                 {% if not user.is_staff and i.medicocreaencuesta_set.all or user.is_staff and not i.medicocreaencuesta_set.all %}
-                                <a class="text-dark small me-1 mt-2" href="{% url 'unpublish_encuesta' i.code %}" title="Pasar a Borrador">Pasar a Borrador</a>
-                                <a class="text-primary small me-1 mt-2" href="{% url 'reassign_encuesta' i.code %}" title="Reasignar">Reasignar</a>
-                                <a class="text-danger small me-1 mt-2" href="{% url 'delete_form' i.code %}" title="Eliminar">Eliminar</a>
+                                <a class="text-dark small" href="{% url 'unpublish_encuesta' i.code %}" title="Pasar a Borrador">Pasar a Borrador</a>
+                                <a class="text-primary small" href="{% url 'reassign_encuesta' i.code %}" title="Reasignar">Reasignar</a>
+                                <a class="text-danger small" href="{% url 'delete_form' i.code %}" title="Eliminar">Eliminar</a>
                                 {% endif %}
                             {% endif %}
                         {% endif %}
